@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linux Quiz Terminal</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d0d;
+    --bg3: #1a1a1a;
+    --green: #00ff41;
+    --green-dim: #00cc33;
+    --amber: #ffb000;
+    --red: #ff3333;
+    --cyan: #00ffff;
+    --white: #e0e0e0;
+    --gray: #555;
+    --border: #1a1a1a;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--bg);
+    color: var(--green);
+    font-family: 'JetBrains Mono', monospace;
+    min-height: 100vh;
+  }
+  body::before {
+    content:'';
+    position:fixed; top:0; left:0; right:0; bottom:0;
+    background: repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px);
+    pointer-events:none; z-index:1000;
+  }
+  body::after {
+    content:'';
+    position:fixed; top:0; left:0; right:0; bottom:0;
+    background: radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,0.6) 100%);
+    pointer-events:none; z-index:999;
+  }
+  .wrap { max-width:880px; margin:0 auto; padding:20px; min-height:100vh; display:flex; flex-direction:column; }
+
+  .t-header {
+    border:1px solid #1a3a1a; border-bottom:none;
+    padding:8px 16px; display:flex; align-items:center; gap:12px;
+    background:#0f1a0f; box-shadow:0 0 30px rgba(0,255,65,0.07);
+  }
+  .dots { display:flex; gap:6px; }
+  .dot { width:12px; height:12px; border-radius:50%; }
+  .dot.r { background:#ff5f57; }
+  .dot.y { background:#febc2e; }
+  .dot.g { background:#28c840; }
+  .t-title { font-family:'Share Tech Mono',monospace; font-size:12px; color:#2a4a2a; flex:1; text-align:center; letter-spacing:2px; }
+
+  .t-body {
+    border:1px solid #1a3a1a; background:var(--bg);
+    padding:32px; flex:1;
+    box-shadow:0 0 60px rgba(0,255,65,0.05),inset 0 0 60px rgba(0,0,0,0.4);
+  }
+
+  .t-footer {
+    border:1px solid #1a3a1a; border-top:none;
+    padding:6px 16px; display:flex; justify-content:space-between;
+    background:#0f1a0f; font-size:10px; color:#2a4a2a; letter-spacing:1px;
+  }
+
+  /* BOOT */
+  .ascii-art {
+    font-size:11px; color:var(--green); line-height:1.3;
+    margin-bottom:28px; text-shadow:0 0 12px rgba(0,255,65,0.5);
+    white-space:pre; opacity:0; animation:fi 0.4s 0.1s forwards;
+  }
+  .boot-text { font-size:12px; color:var(--white); line-height:2; }
+  .bl { opacity:0; }
+  .bl:nth-child(1){animation:fi .1s .2s forwards;}
+  .bl:nth-child(2){animation:fi .1s .45s forwards;}
+  .bl:nth-child(3){animation:fi .1s .7s forwards;}
+  .bl:nth-child(4){animation:fi .1s .95s forwards;}
+  .bl:nth-child(5){animation:fi .1s 1.2s forwards;}
+  .bl:nth-child(6){animation:fi .1s 1.45s forwards;}
+  .bl:nth-child(7){animation:fi .1s 1.7s forwards;}
+  .bl:nth-child(8){animation:fi .1s 1.95s forwards;}
+  .ok { color:#28c840; }
+  .wa { color:var(--amber); }
+  .gc { color:var(--green); }
+
+  /* MODE BUTTONS */
+  .mode-btns {
+    display:flex; gap:16px; margin-top:32px; flex-wrap:wrap;
+    opacity:0; animation:fi 0.4s 2.3s forwards;
+  }
+
+  .mode-btn {
+    flex:1; min-width:200px;
+    padding:18px 24px;
+    border:1px solid var(--green);
+    background:transparent;
+    color:var(--green);
+    font-family:'JetBrains Mono',monospace;
+    cursor:pointer;
+    text-align:left;
+    transition:all 0.2s;
+    position:relative;
+    overflow:hidden;
+  }
+  .mode-btn::before {
+    content:''; position:absolute; top:0; left:-100%; width:100%; height:100%;
+    background:rgba(0,255,65,0.06); transition:left 0.3s;
+  }
+  .mode-btn:hover { box-shadow:0 0 24px rgba(0,255,65,0.25); color:#fff; }
+  .mode-btn:hover::before { left:0; }
+
+  .mode-btn.all-mode {
+    border-color:var(--cyan); color:var(--cyan);
+  }
+  .mode-btn.all-mode::before { background:rgba(0,255,255,0.05); }
+  .mode-btn.all-mode:hover { box-shadow:0 0 24px rgba(0,255,255,0.2); color:#fff; border-color:var(--cyan); }
+
+  .mode-btn-title { font-size:13px; letter-spacing:3px; font-weight:700; margin-bottom:8px; }
+  .mode-btn-desc { font-size:11px; opacity:0.6; letter-spacing:1px; line-height:1.6; }
+  .mode-btn-count { font-size:22px; font-family:'Share Tech Mono',monospace; margin-bottom:6px; }
+
+  /* QUIZ */
+  #quiz-screen { display:none; }
+  .q-header {
+    display:flex; justify-content:space-between; align-items:center;
+    margin-bottom:20px; padding-bottom:12px; border-bottom:1px solid #161616;
+  }
+  .prompt { font-size:11px; color:var(--gray); }
+  .prompt .ph { color:var(--green); }
+  .prompt .pd { color:var(--cyan); }
+  .stats { display:flex; gap:16px; font-size:11px; }
+  .stat-item { color:var(--gray); }
+  .stat-item span { color:var(--cyan); }
+
+  .prog-wrap { margin-bottom:24px; }
+  .prog-label {
+    font-size:10px; color:#333; margin-bottom:6px;
+    display:flex; justify-content:space-between; letter-spacing:2px;
+  }
+  .prog-label span { color:var(--green-dim); }
+  .prog-bar { height:2px; background:#111; overflow:hidden; }
+  .prog-fill { height:100%; background:var(--green); transition:width 0.5s ease; box-shadow:0 0 10px var(--green); }
+
+  .cat-badge {
+    font-size:10px; color:var(--amber);
+    border:1px solid rgba(255,176,0,0.3);
+    padding:3px 12px; letter-spacing:3px;
+    margin-bottom:20px; display:inline-block;
+    background:rgba(255,176,0,0.04);
+  }
+  .q-num { font-size:11px; color:#333; margin-bottom:8px; font-family:'Share Tech Mono',monospace; }
+  .q-text { font-size:16px; color:var(--white); line-height:1.65; margin-bottom:24px; padding-left:16px; border-left:2px solid var(--green); }
+
+  .options { display:flex; flex-direction:column; gap:9px; margin-bottom:26px; }
+  .opt-btn {
+    padding:13px 18px; background:#0f0f0f; border:1px solid #1c1c1c;
+    color:#aaa; font-family:'JetBrains Mono',monospace; font-size:13px;
+    cursor:pointer; text-align:left; transition:all 0.15s;
+    display:flex; align-items:center; gap:14px;
+    opacity:0; animation:si 0.3s forwards;
+  }
+  .opt-btn:nth-child(1){animation-delay:0.04s;}
+  .opt-btn:nth-child(2){animation-delay:0.09s;}
+  .opt-btn:nth-child(3){animation-delay:0.14s;}
+  .opt-btn:nth-child(4){animation-delay:0.19s;}
+  .opt-key { color:#333; font-size:11px; min-width:24px; font-family:'Share Tech Mono',monospace; transition:color 0.15s; }
+  .opt-btn:hover:not(:disabled) { border-color:#2a2a2a; background:#141414; color:var(--green); padding-left:24px; }
+  .opt-btn:hover:not(:disabled) .opt-key { color:var(--green); }
+  .opt-btn.correct { border-color:var(--green); background:rgba(0,255,65,0.07); color:var(--green); box-shadow:0 0 16px rgba(0,255,65,0.15); }
+  .opt-btn.correct .opt-key { color:var(--green); }
+  .opt-btn.wrong { border-color:var(--red); background:rgba(255,51,51,0.07); color:var(--red); }
+  .opt-btn.wrong .opt-key { color:var(--red); }
+  .opt-btn:disabled { cursor:not-allowed; }
+
+  .feedback {
+    font-size:12px; padding:11px 16px; border-left:2px solid;
+    margin-bottom:16px; opacity:0; transition:opacity 0.3s;
+    font-family:'Share Tech Mono',monospace; letter-spacing:1px; min-height:40px;
+  }
+  .feedback.show { opacity:1; }
+  .fb-ok { color:var(--green); border-color:var(--green); background:rgba(0,255,65,0.04); }
+  .fb-err { color:var(--red); border-color:var(--red); background:rgba(255,51,51,0.04); }
+
+  .next-btn {
+    padding:10px 26px; background:transparent; border:1px solid #1a3a4a;
+    color:var(--cyan); font-family:'JetBrains Mono',monospace; font-size:12px;
+    cursor:pointer; letter-spacing:3px; transition:all 0.2s; display:none;
+  }
+  .next-btn:hover { background:rgba(0,255,255,0.06); border-color:var(--cyan); box-shadow:0 0 14px rgba(0,255,255,0.15); }
+
+  /* RESULT */
+  #result-screen { display:none; }
+  .res-ascii { font-size:10px; line-height:1.3; margin-bottom:22px; white-space:pre; }
+  .res-ascii.pass { color:var(--green); text-shadow:0 0 16px rgba(0,255,65,0.5); }
+  .res-ascii.fail { color:var(--red); text-shadow:0 0 16px rgba(255,51,51,0.4); }
+  .res-stats { border:1px solid #161616; padding:20px; margin:20px 0; background:#0a0a0a; }
+  .res-row { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #111; font-size:13px; color:#444; }
+  .res-row:last-child { border-bottom:none; }
+  .res-row span { color:var(--white); }
+  .res-row .big { color:var(--green); font-size:22px; font-family:'Share Tech Mono',monospace; }
+  .grade-bar { height:4px; background:#0a0a0a; border:1px solid #161616; margin:16px 0 8px; overflow:hidden; }
+  .grade-fill { height:100%; background:linear-gradient(90deg,var(--green-dim),var(--green)); box-shadow:0 0 12px var(--green); transition:width 1.2s ease; width:0%; }
+  .grade-text { font-size:42px; font-family:'Share Tech Mono',monospace; color:var(--green); text-shadow:0 0 30px rgba(0,255,65,0.5); display:block; line-height:1; margin-top:12px; }
+  .grade-text.low { color:var(--red); text-shadow:0 0 30px rgba(255,51,51,0.4); }
+  .grade-label { font-size:11px; color:#444; letter-spacing:4px; margin-top:6px; }
+  .restart-btn { margin-top:28px; padding:11px 30px; background:transparent; border:1px solid var(--green); color:var(--green); font-family:'JetBrains Mono',monospace; font-size:12px; cursor:pointer; letter-spacing:4px; transition:all 0.2s; margin-right:12px; }
+  .restart-btn:hover { background:rgba(0,255,65,0.08); box-shadow:0 0 20px rgba(0,255,65,0.25); }
+  .back-btn { margin-top:28px; padding:11px 30px; background:transparent; border:1px solid #333; color:#555; font-family:'JetBrains Mono',monospace; font-size:12px; cursor:pointer; letter-spacing:4px; transition:all 0.2s; }
+  .back-btn:hover { border-color:#555; color:#aaa; }
+
+  .cursor { display:inline-block; width:7px; height:14px; background:var(--green); animation:blink 1s step-end infinite; vertical-align:text-bottom; margin-left:2px; }
+  @keyframes blink { 0%,100%{opacity:1}50%{opacity:0} }
+  @keyframes fi { to{opacity:1} }
+  @keyframes si { from{opacity:0;transform:translateX(-8px)} to{opacity:1;transform:translateX(0)} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="t-header">
+    <div class="dots">
+      <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+    </div>
+    <div class="t-title">root@kali:~/linux-quiz — bash</div>
+  </div>
+
+  <div class="t-body">
+
+    <!-- BOOT -->
+    <div id="boot-screen">
+      <pre class="ascii-art">  _     _                  ___        _
+ | |   (_)_ __  _   ___  / _ \ _   _(_)____
+ | |   | | '_ \| | | \ \/ / | | | | | |_  /
+ | |___| | | | | |_| |>  <| |_| | |_| |/ /
+ |_____|_|_| |_|\__,_/_/\_\\___|\__,_/___| </pre>
+
+      <div class="boot-text">
+        <div class="bl">[<span class="ok">  OK  </span>] LinuxQuiz OS v3.0 — loading...</div>
+        <div class="bl">[<span class="ok">  OK  </span>] questions.db: <span class="gc">112 ta savol yuklandi</span></div>
+        <div class="bl">[<span class="ok">  OK  </span>] Mavzular: <span class="gc">Linux · SSH · Tizim · Tarmoq · Kriptografiya · Xavfsizlik</span></div>
+        <div class="bl">[<span class="ok">  OK  </span>] Ikkita rejim mavjud: <span class="gc">RANDOM-20</span> va <span class="gc">FULL-112</span></div>
+        <div class="bl">[<span class="wa"> WARN </span>] FULL rejimda barcha 112 ta savol ketma-ket chiqadi</div>
+        <div class="bl">[<span class="ok">  OK  </span>] Tayyor. Xush kelibsiz, <span class="gc">root</span><span class="cursor"></span></div>
+        <div class="bl">&nbsp;</div>
+        <div class="bl"><span class="gc">$</span> linux-quiz --select-mode</div>
+      </div>
+
+      <div class="mode-btns">
+        <button class="mode-btn" onclick="startQuiz(20)">
+          <div class="mode-btn-count">20</div>
+          <div class="mode-btn-title">▶ RANDOM TEST</div>
+          <div class="mode-btn-desc">112 ta savoldan tasodifiy<br>20 tasi tanlanadi.<br>Har safar boshqacha!</div>
+        </button>
+        <button class="mode-btn all-mode" onclick="startQuiz(112)">
+          <div class="mode-btn-count">112</div>
+          <div class="mode-btn-title">▶▶ TO'LIQ TEST</div>
+          <div class="mode-btn-desc">Fayldagi barcha 112 ta<br>savol ketma-ket chiqadi.<br>Hech birini o'tkazmasdan!</div>
+        </button>
+      </div>
+    </div>
+
+    <!-- QUIZ -->
+    <div id="quiz-screen">
+      <div class="q-header">
+        <div class="prompt">
+          <span class="ph">root@kali</span>:<span class="pd">~/quiz</span>$ <span style="color:#444">./run.sh</span>
+        </div>
+        <div class="stats">
+          <div class="stat-item">✓ <span id="correct-count">0</span></div>
+          <div class="stat-item">✗ <span id="wrong-count">0</span></div>
+          <div class="stat-item">SAVOL <span id="q-counter">1/?</span></div>
+        </div>
+      </div>
+
+      <div class="prog-wrap">
+        <div class="prog-label"><span>PROGRESS</span><span id="prog-pct">0%</span></div>
+        <div class="prog-bar"><div class="prog-fill" id="prog-fill"></div></div>
+      </div>
+
+      <div class="cat-badge" id="cat-badge">—</div>
+      <div class="q-num" id="q-num">// savol_01</div>
+      <div class="q-text" id="q-text"></div>
+      <div class="options" id="options"></div>
+      <div class="feedback" id="feedback"></div>
+      <button class="next-btn" id="next-btn" onclick="nextQ()">KEYINGISI &nbsp;→</button>
+    </div>
+
+    <!-- RESULT -->
+    <div id="result-screen">
+      <div class="res-ascii" id="res-ascii"></div>
+      <div class="res-stats">
+        <div class="res-row">Jami savollar <span id="res-total">—</span></div>
+        <div class="res-row">To'g'ri javoblar <span class="big" id="res-correct">0</span></div>
+        <div class="res-row">Noto'g'ri javoblar <span id="res-wrong">0</span></div>
+        <div class="res-row">Natija <span id="res-pct">0%</span></div>
+      </div>
+      <div class="grade-bar"><div class="grade-fill" id="grade-fill"></div></div>
+      <span class="grade-text" id="grade-text">A+</span>
+      <div class="grade-label" id="grade-label">MUKAMMAL</div>
+      <br>
+      <button class="restart-btn" onclick="restartSame()">↺ QAYTA (xuddi shu rejim)</button>
+      <button class="back-btn" onclick="goHome()">⌂ BOSH MENYU</button>
+    </div>
+
+  </div>
+
+  <div class="t-footer">
+    <span id="footer-s">SYSTEM READY</span>
+    <span>LinuxQuiz v3.0 &nbsp;|&nbsp; UTF-8 &nbsp;|&nbsp; 112 savol</span>
+  </div>
+</div>
+
+<script>
+// ===================== BARCHA 112 TA SAVOL =====================
+const ALL = [
+  { q:"Linux nima?", opts:["Dastur","Operatsion tizim","O'yin","Brauzer"], ans:1, cat:"LINUX ASOSLARI" },
+  { q:"'pwd' komandasi nima qiladi?", opts:["Fayl yaratadi","Joriy katalogni ko'rsatadi","O'chiradi","Nusxa oladi"], ans:1, cat:"LINUX ASOSLARI" },
+  { q:"'ls' komandasi vazifasi?", opts:["Fayl yaratadi","Katalog ichini ko'rsatadi","Tizimni o'chiradi","Internetga ulanadi"], ans:1, cat:"LINUX ASOSLARI" },
+  { q:"'cd' komandasi nima qiladi?", opts:["Katalogga o'tadi","Fayl ochadi","O'chiradi","Nusxa oladi"], ans:0, cat:"LINUX ASOSLARI" },
+  { q:"'mkdir' komandasi?", opts:["Fayl ochadi","Katalog yaratadi","O'chiradi","Ko'rsatadi"], ans:1, cat:"LINUX ASOSLARI" },
+  { q:"'rm' komandasi?", opts:["Fayl yaratadi","Fayl o'chiradi","Ko'chiradi","O'qiydi"], ans:1, cat:"LINUX ASOSLARI" },
+  { q:"'cp' komandasi?", opts:["Nusxa olish","O'chirish","Ko'rsatish","Ochish"], ans:0, cat:"LINUX ASOSLARI" },
+  { q:"'mv' komandasi?", opts:["Ko'rsatish","Ko'chirish/yoki nomini o'zgartirish","O'chirish","Yaratish"], ans:1, cat:"LINUX ASOSLARI" },
+  { q:"SSH nima?", opts:["Fayl struktura turi","Xavfsiz ulanish protokoli","Hack the box ulanish protokoli","Dastur mavzu tizimi"], ans:1, cat:"SSH" },
+  { q:"Linux yadrosi nima?", opts:["GUI","Kernel","Fayl","Brauzer"], ans:1, cat:"LINUX ASOSLARI" },
+  { q:"Linux tizimida buyruqlar nimani ta'minlaydi?", opts:["Tizimni boshqarishni","Dasturlarni boshqarishni","Joriy fayl katalogini","root huquqini"], ans:0, cat:"LINUX ASOSLARI" },
+  { q:"Operatsion tizim vazifasi nima?", opts:["Fayl yaratish","Kompyuterni boshqarish","Internetga kirish","Dasturni boshqarish"], ans:1, cat:"LINUX ASOSLARI" },
+  { q:"Kernel nima?", opts:["Dastur","Tizim yadrosi","Fayl katalogi","Papka katalogi"], ans:1, cat:"LINUX ASOSLARI" },
+  { q:"Linux qachon yaratilgan?", opts:["1991","2000","1980","2010"], ans:0, cat:"LINUX ASOSLARI" },
+  { q:"Linux kim tomonidan yaratilgan?", opts:["Bill Gates","Linus Torvalds","Steve Jobs","Mark Zuckerberg"], ans:1, cat:"LINUX ASOSLARI" },
+  { q:"Open source nimani anglatadi?", opts:["Yopiq tizim","Ochiq kodli tizim","Pullik dastur","Internet"], ans:1, cat:"LINUX ASOSLARI" },
+  { q:"GUI nima?", opts:["Matnli interfeys","Grafik interfeys","Buyruqli interfeys","Fayli interfeys"], ans:1, cat:"LINUX ASOSLARI" },
+  { q:"Linuxda fayl tizimi qayerdan boshlanadi?", opts:["/root","/home","/","/usr"], ans:2, cat:"LINUX ASOSLARI" },
+  { q:"Root nima?", opts:["Oddiy foydalanuvchi","Administrator","Fayl","Dastur"], ans:1, cat:"LINUX ASOSLARI" },
+  { q:"touch nima qiladi?", opts:["Fayl yaratadi","O'chiradi","Ko'chiradi","Ko'rsatadi"], ans:0, cat:"LINUX ASOSLARI" },
+  { q:"cat nima qiladi?", opts:["Fayl o'qiydi","O'chiradi","Yaratadi","Ko'chiradi"], ans:0, cat:"LINUX ASOSLARI" },
+  { q:"clear nima qiladi?", opts:["Fayl o'chiradi","Ekranni tozalaydi","Yaratadi","Ko'rsatadi"], ans:1, cat:"LINUX ASOSLARI" },
+  { q:"SSH orqali nima qilinadi?", opts:["Video ko'rish","Masofadan boshqarish","Dasturni masofadan boshqarish","Fayl yaratish va unga ulanish"], ans:1, cat:"SSH" },
+  { q:"SSH porti odatda nechchi?", opts:["21","22","80","443"], ans:1, cat:"SSH" },
+  { q:"ssh user@ip nimani anglatadi?", opts:["Fayl yaratish","Ulanish","SSH ip protokoli","Nusxa olish"], ans:1, cat:"SSH" },
+  { q:"Linux distributiv nima?", opts:["Dasturiy versiya","Linux versiyasi","Linux fayl","Kodlar strukturasi"], ans:1, cat:"LINUX ASOSLARI" },
+  { q:"Parrot OS nima?", opts:["Linux tizimi","Xavfsizlik tizimi","Fayl tizimi","Brauzer tizimi"], ans:0, cat:"LINUX ASOSLARI" },
+  { q:"Ubuntu nima?", opts:["Linux distributivi","Terminal","Fayl","Brauzer"], ans:0, cat:"LINUX ASOSLARI" },
+  { q:"Fayl ruxsatlari nima bilan belgilanadi?", opts:["chmod","rm","ls","cd"], ans:0, cat:"TIZIM BOSHQARUVI" },
+  { q:"sudo nima qiladi?", opts:["O'chiradi","Administrator huquq beradi","Ko'chiradi","Ochadi"], ans:1, cat:"TIZIM BOSHQARUVI" },
+  { q:".sh fayl nima?", opts:["Video","Script","Rasm","Musiqa"], ans:1, cat:"LINUX ASOSLARI" },
+  { q:"Linuxda foydalanuvchi qo'shish uchun qaysi buyruq ishlatiladi?", opts:["add","useradd","newuser","createuser"], ans:1, cat:"TIZIM BOSHQARUVI" },
+  { q:"Linuxda foydalanuvchini o'chirish komandasi qaysi?", opts:["adduser","deluser","newuser","touch"], ans:1, cat:"TIZIM BOSHQARUVI" },
+  { q:"Linuxda xizmatlarni boshqarish uchun qaysi buyruq ishlatiladi?", opts:["service","systemctl","control","start"], ans:1, cat:"TIZIM BOSHQARUVI" },
+  { q:"chmod buyrug'i nima uchun ishlatiladi?", opts:["Fayl o'chirish","Ruxsatlarni o'zgartirish","Fayl yaratish","Ko'rsatish"], ans:1, cat:"TIZIM BOSHQARUVI" },
+  { q:"Linuxda yashirin fayllar qanday belgilanadi?", opts:["_ bilan",". (nuqta) bilan","# bilan","@ bilan"], ans:1, cat:"LINUX ASOSLARI" },
+  { q:"top buyrug'i nima qiladi?", opts:["Fayl yaratadi","Tizim jarayonlarini ko'rsatadi","O'chiradi","Ko'chiradi"], ans:1, cat:"TIZIM BOSHQARUVI" },
+  { q:"ps buyrug'i nima uchun ishlatiladi?", opts:["Fayl ochish","Jarayonlarni ko'rsatish","O'chirish","Yaratish"], ans:1, cat:"TIZIM BOSHQARUVI" },
+  { q:"Disk hajmini ko'rish uchun qaysi buyruq ishlatiladi?", opts:["size","df","disk","show"], ans:1, cat:"TIZIM BOSHQARUVI" },
+  { q:"Papka hajmini ko'rish uchun qaysi buyruq ishlatiladi?", opts:["du","df","size","dir"], ans:0, cat:"TIZIM BOSHQARUVI" },
+  { q:"Linuxda yordam olish uchun qaysi buyruq ishlatiladi?", opts:["help","man","info","guide"], ans:0, cat:"LINUX ASOSLARI" },
+  { q:"Linuxning asosiy afzalligi nima?", opts:["Juda qimmat","Xavfsiz va bepul","Faqat o'yin uchun","Faqat grafik uchun"], ans:1, cat:"LINUX ASOSLARI" },
+  { q:"rm -r nimani bildiradi?", opts:["Fayl ochish","Papkani ichidagilari bilan o'chirish","Ko'rsatish","Nusxa olish"], ans:1, cat:"LINUX ASOSLARI" },
+  { q:"echo buyrug'i nima qiladi?", opts:["Fayl o'chiradi","Matn chiqaradi","Ko'chiradi","Yaratadi"], ans:1, cat:"LINUX ASOSLARI" },
+  { q:"SSH orqali ulanish sintaksisi qaysi?", opts:["connect ip","ssh user@ip","login ip","open ip"], ans:1, cat:"SSH" },
+  { q:"Terminal nima?", opts:["Linux oynasi","Buyruq bajarish muhiti","Fayl","Vaqtinchalik muhit"], ans:1, cat:"LINUX ASOSLARI" },
+  { q:"history buyrug'i nima qiladi?", opts:["Fayl ochadi","Oldingi buyruqlarni ko'rsatadi","O'chiradi","Nusxa oladi"], ans:1, cat:"LINUX ASOSLARI" },
+  { q:"GitHub nima?", opts:["Linux platforma","Kod saqlash platformasi","web sayt","Antivirus"], ans:1, cat:"VOSITALAR" },
+  { q:"GitHub'dan loyiha yuklash uchun qaysi buyruq ishlatiladi?", opts:["download","git clone","copy","fetch"], ans:1, cat:"VOSITALAR" },
+  { q:"git clone nima qiladi?", opts:["Fayl o'chiradi","Loyihani yuklab oladi","Ko'rsatadi","Ochadi"], ans:1, cat:"VOSITALAR" },
+  { q:"Repository nima?", opts:["Fayl","Kod saqlanadigan joy","O'yin","Disk"], ans:1, cat:"VOSITALAR" },
+  { q:"Phishing nima?", opts:["Github","Firibgarlik orqali ma'lumot olish","Fayl yaratish","Linux orqali malumot olish"], ans:1, cat:"XAVFSIZLIK" },
+  { q:"Phishing odatda qayerda bo'ladi?", opts:["Email","Printer","Monitor","USB"], ans:0, cat:"XAVFSIZLIK" },
+  { q:"Kuchli parol qanday bo'ladi?", opts:["123456","Faqat harf","Harf, son va belgilar aralash","Ism"], ans:2, cat:"XAVFSIZLIK" },
+  { q:"Linuxda foydalanuvchini aniqlash uchun qaysi buyruq ishlatiladi?", opts:["whoami","user","name","idd"], ans:0, cat:"LINUX ASOSLARI" },
+  { q:"Fayl ichini ko'rish uchun qaysi buyruq ishlatiladi?", opts:["show","cat","open","read"], ans:1, cat:"LINUX ASOSLARI" },
+  { q:"Tarmoqni tekshirish uchun qaysi buyruq ishlatiladi?", opts:["ping","check","net","test"], ans:0, cat:"TARMOQ" },
+  { q:"Portlarni tekshirish uchun qaysi vosita ishlatiladi?", opts:["nano","nmap","cat","rm"], ans:1, cat:"TARMOQ" },
+  { q:"ifconfig nima qiladi?", opts:["Fayl yaratadi","Tarmoqni ko'rsatadi","O'chiradi","Nusxa oladi"], ans:1, cat:"TARMOQ" },
+  { q:"wget nima qiladi?", opts:["Fayl o'chiradi","Internetdan yuklab oladi","Ko'rsatadi","Ochadi"], ans:1, cat:"TARMOQ" },
+  { q:"nano nima?", opts:["O'yin","Matn muharriri","Fayl","Disk"], ans:1, cat:"VOSITALAR" },
+  { q:"find buyrug'i nima qiladi?", opts:["Fayl qidiradi","O'chiradi","Ko'chiradi","Ochadi"], ans:0, cat:"VOSITALAR" },
+  { q:"grep nima qiladi?", opts:["Fayl o'chiradi","Matndan qidiradi","Ko'chiradi","Yaratadi"], ans:1, cat:"VOSITALAR" },
+  { q:"tar nima uchun ishlatiladi?", opts:["Arxivlash","O'chirish","Ko'rsatish","Ochish"], ans:0, cat:"VOSITALAR" },
+  { q:"zip nima qiladi?", opts:["Fayl yaratadi","Siqadi","O'chiradi","Ko'rsatadi"], ans:1, cat:"VOSITALAR" },
+  { q:"uname nima ko'rsatadi?", opts:["Fayl","Tizim ma'lumotlari","O'yin","Disk"], ans:1, cat:"LINUX ASOSLARI" },
+  { q:"Linuxda xavfsizlikning asosiy sababi nima?", opts:["Xavfsizlik yuqori","Ochiq kod va nazorat","Sekin ishlaydi","Qimmat"], ans:1, cat:"LINUX ASOSLARI" },
+  { q:"Root foydalanuvchi kim?", opts:["Oddiy user","Administrator","Mehmon","Dasturchi"], ans:1, cat:"LINUX ASOSLARI" },
+  { q:"Linux qaysi turga kiradi?", opts:["Yopiq tizim","Ochiq kodli tizim","Xavfsiz tizim","Brauzer tizim"], ans:1, cat:"LINUX ASOSLARI" },
+  { q:"Shifrlash nima?", opts:["Fayl o'chirish","Ma'lumotni yashirish","Nusxa olish","Ochish"], ans:1, cat:"KRIPTOGRAFIYA" },
+  { q:"Shifrlashning asosiy maqsadi nima?", opts:["Tezlik","Xavfsizlik","O'yin","Ko'rsatish"], ans:1, cat:"KRIPTOGRAFIYA" },
+  { q:"Encryption nimani anglatadi?", opts:["O'chirish","Shifrlash","Ko'rsatish","Nusxa olish"], ans:1, cat:"KRIPTOGRAFIYA" },
+  { q:"Decryption nima?", opts:["Yashirish","Shifrni ochish","O'chirish","Nusxa olish"], ans:1, cat:"KRIPTOGRAFIYA" },
+  { q:"Kalit (key) nima?", opts:["Fayl vositasi","Shifrlash vositasi","Ma'lumot vositasi","Disk vositasi"], ans:1, cat:"KRIPTOGRAFIYA" },
+  { q:"Simmetrik shifrlash nima?", opts:["2 xil kalit","1 xil kalit","Kalitsiz","Noto'g'ri"], ans:1, cat:"KRIPTOGRAFIYA" },
+  { q:"Asimmetrik shifrlash nima?", opts:["1 kalit","2 kalit","Kalitsiz","O'yin"], ans:1, cat:"KRIPTOGRAFIYA" },
+  { q:"AES qaysi turga kiradi?", opts:["Asimmetrik","Simmetrik","Hash","O'yin"], ans:1, cat:"KRIPTOGRAFIYA" },
+  { q:"RSA qaysi turga kiradi?", opts:["Simmetrik","Asimmetrik","Hash","Fayl"], ans:1, cat:"KRIPTOGRAFIYA" },
+  { q:"Hash nima?", opts:["Shifrlash funksiya","Bir tomonlama funksiya","Paroli funksiya","Disk funksiya"], ans:1, cat:"KRIPTOGRAFIYA" },
+  { q:"MD5 nima?", opts:["Hash","O'yin","Fayl","Parol"], ans:0, cat:"KRIPTOGRAFIYA" },
+  { q:"SHA-256 nima?", opts:["Hash algoritm","Parol algoritm","Fayl algoritm","Disk algoritm"], ans:0, cat:"KRIPTOGRAFIYA" },
+  { q:"Shifrlash qayerda ishlatiladi?", opts:["Internet","Bank","Login tizimi","Barchasi"], ans:3, cat:"KRIPTOGRAFIYA" },
+  { q:"HTTPS nimani bildiradi?", opts:["Oddiy ulanish","Xavfsiz ulanish","Parolli ulanish","Kodli ulanish"], ans:1, cat:"TARMOQ" },
+  { q:"SSL/TLS nima?", opts:["Oddiy protokol","Xavfsiz protokol","Dasturli protokol","Kodli protokol"], ans:1, cat:"TARMOQ" },
+  { q:"Kuchli parol qanday bo'ladi? (2)", opts:["123456","Faqat ism","Harf+son+belgi","Faqat harf"], ans:2, cat:"XAVFSIZLIK" },
+  { q:"Parol uzunligi qanday bo'lishi kerak?", opts:["3 ta","5 ta","8+ belgidan","2 ta"], ans:2, cat:"XAVFSIZLIK" },
+  { q:"Parolni qayerda saqlash xavfsiz?", opts:["Qog'ozda","Parol menejerda","Do'stga aytish","Faylda"], ans:1, cat:"XAVFSIZLIK" },
+  { q:"2FA nima?", opts:["Kuchli kodli tizim","Ikki bosqichli autentifikatsiya","Parollarni xavfsiz saqlash","Disktagi malumotlarni yashirish"], ans:1, cat:"XAVFSIZLIK" },
+  { q:"OTP nima?", opts:["Doimiy parol","Bir martalik parol","Saqlangan parol","Diskdagi parol"], ans:1, cat:"XAVFSIZLIK" },
+  { q:"Parolni tez-tez o'zgartirish kerakmi?", opts:["Yo'q","Ha","Kerak emas","Bilmayman"], ans:1, cat:"XAVFSIZLIK" },
+  { q:"Eng xavfli parol qaysi?", opts:["Qiyin","Oddiy","Uzun","Murakkab"], ans:1, cat:"XAVFSIZLIK" },
+  { q:"Brute force nima?", opts:["Kodlash tizimi","Parolni taxmin qilish","Kuchli parol yaratish","Oddiy parol"], ans:1, cat:"XAVFSIZLIK" },
+  { q:"Dictionary attack nima?", opts:["Lug'at orqali parol topish","Malumot izlari orqali parol topish","Faylni parolsizlantirish","Xafsiz parol topish"], ans:0, cat:"XAVFSIZLIK" },
+  { q:"Keylogger dasturining asosiy vazifasi nima?", opts:["Tarmoqni tezlashtirish","Klaviatura orqali kiritilgan ma'lumotlarni yashirin yozib borish","Fayllarni shifrlash","Internet trafikni bloklash"], ans:1, cat:"XAVFSIZLIK" },
+  { q:"Password reuse nimaga olib kelishi mumkin?", opts:["Parol mustahkamlanadi","Bitta tizim buzilsa, boshqalari ham xavf ostida qoladi","Tizim tez ishlaydi","Xavfsizlik oshadi"], ans:1, cat:"XAVFSIZLIK" },
+  { q:"Qaysi parol eng xavfsiz hisoblanadi?", opts:["user123","12345678","P@ssw0rd","X7!kL9@qZ#2"], ans:3, cat:"XAVFSIZLIK" },
+  { q:"Brauzerda parol saqlashning asosiy xavfi nima?", opts:["Parol o'chib ketadi","Qurilma buzilsa yoki virus tushsa parollar ochilishi mumkin","Internet sekinlashadi","Fayllar o'chadi"], ans:1, cat:"XAVFSIZLIK" },
+  { q:"Social engineering hujumi nimaga asoslanadi?", opts:["Kuchli algoritmlarga","Odamlarni aldash va ishonchdan foydalanishga","Tarmoq qurilmalariga","Fayl tizimiga"], ans:1, cat:"XAVFSIZLIK" },
+  { q:"Shoulder surfing qanday amalga oshiriladi?", opts:["Internet orqali","Masofadan virus yuborib","Foydalanuvchi ekranini yoki klaviaturasini kuzatish orqali","Serverga hujum qilib"], ans:2, cat:"XAVFSIZLIK" },
+  { q:"Rainbow table nimani anglatadi?", opts:["Rangli jadval","Oldindan hisoblangan hash qiymatlar bazasi","Parol generatori","Antivirus vositasi"], ans:1, cat:"XAVFSIZLIK" },
+  { q:"Social engineering hujumi nimaga asoslanadi? (takror)", opts:["Kuchli algoritmlarga","Odamlarni aldash va ishonchdan foydalanishga","Tarmoq qurilmalariga","Fayl tizimiga"], ans:1, cat:"XAVFSIZLIK" },
+  { q:"Shoulder surfing qanday amalga oshiriladi? (takror)", opts:["Internet orqali","Masofadan virus yuborib","Foydalanuvchi ekranini yoki klaviaturasini kuzatish orqali","Serverga hujum qilib"], ans:2, cat:"XAVFSIZLIK" },
+  { q:"Rainbow table nimani anglatadi? (takror)", opts:["Rangli jadval","Oldindan hisoblangan hash qiymatlar bazasi","Parol generatori","Antivirus vositasi"], ans:1, cat:"XAVFSIZLIK" },
+  { q:"Antivirus dasturining asosiy vazifasi nima?", opts:["O'yin o'ynash","Zararli dasturlarni aniqlash va yo'q qilish","Fayl yaratish","Internet tezligini oshirish"], ans:1, cat:"XAVFSIZLIK" },
+  { q:"Malware atamasi nimani anglatadi?", opts:["Oddiy dastur","Tizimni tezlashtiruvchi vosita","Zararli dasturlar umumiy nomi","Grafik interfeys"], ans:2, cat:"XAVFSIZLIK" },
+  { q:"Trojan dasturi qanday ishlaydi?", opts:["Ochiq holda zarar yetkazadi","Foydali dastur sifatida ko'rinib, yashirin zarar yetkazadi","Faqat internetda ishlaydi","Fayl yaratadi"], ans:1, cat:"XAVFSIZLIK" },
+  { q:"Antivirus dasturining asosiy vazifasi nima? (takror)", opts:["O'yin o'ynash","Zararli dasturlarni aniqlash va yo'q qilish","Fayl yaratish","Internet tezligini oshirish"], ans:1, cat:"XAVFSIZLIK" },
+  { q:"Malware atamasi nimani anglatadi? (takror)", opts:["Oddiy dastur","Tizimni tezlashtiruvchi vosita","Zararli dasturlar umumiy nomi","Grafik interfeys"], ans:2, cat:"XAVFSIZLIK" },
+  { q:"Trojan dasturi qanday ishlaydi? (takror)", opts:["Ochiq holda zarar yetkazadi","Foydali dastur sifatida ko'rinib, yashirin zarar yetkazadi","Faqat internetda ishlaydi","Fayl yaratadi"], ans:1, cat:"XAVFSIZLIK" },
+  { q:"Worm (qurt) dasturining asosiy xususiyati nima?", opts:["Faqat bir faylga zarar yetkazadi","O'zini o'zi nusxalab tarmoq orqali tarqaladi","Parol yaratadi","Internetni o'chiradi"], ans:1, cat:"XAVFSIZLIK" },
+  { q:"Kompyuter virusi nima qiladi?", opts:["Fayl hajmini oshiradi","Fayllarga zarar yetkazadi va o'zini qo'shadi","Internet tezligini oshiradi","Diskni tozalaydi"], ans:1, cat:"XAVFSIZLIK" },
+  { q:"Backup qilishning asosiy foydasi nima?", opts:["Tizimni tezlashtirish","Ma'lumot yo'qolsa tiklash imkonini beradi","Internetni tezlashtiradi","Parolni kuchaytiradi"], ans:1, cat:"XAVFSIZLIK" },
+  { q:"HTTPS protokoli HTTP'dan nimasi bilan farq qiladi?", opts:["Tezroq ishlaydi","Ma'lumotni shifrlaydi","Fayl yaratadi","Diskni boshqaradi"], ans:1, cat:"TARMOQ" },
+];
+
+// ===================== STATE =====================
+let pool = [];
+let current = 0;
+let score = 0;
+let wrongC = 0;
+let totalQ = 20;
+let lastMode = 20;
+
+function shuffle(arr){ return [...arr].sort(()=>Math.random()-0.5); }
+
+function startQuiz(n){
+  totalQ = n;
+  lastMode = n;
+  pool = n === 112 ? [...ALL] : shuffle(ALL).slice(0,20);
+  current = 0; score = 0; wrongC = 0;
+  document.getElementById('boot-screen').style.display='none';
+  document.getElementById('quiz-screen').style.display='block';
+  document.getElementById('result-screen').style.display='none';
+  loadQ();
+}
+
+function loadQ(){
+  const q = pool[current];
+  const keys = ['A','B','C','D'];
+  document.getElementById('cat-badge').textContent = q.cat;
+  document.getElementById('q-num').textContent = `// savol_${String(current+1).padStart(3,'0')}`;
+  document.getElementById('q-text').textContent = q.q;
+  document.getElementById('q-counter').textContent = `${current+1}/${pool.length}`;
+  document.getElementById('correct-count').textContent = score;
+  document.getElementById('wrong-count').textContent = wrongC;
+
+  const pct = Math.round((current/pool.length)*100);
+  document.getElementById('prog-fill').style.width = pct+'%';
+  document.getElementById('prog-pct').textContent = pct+'%';
+
+  const fb = document.getElementById('feedback');
+  fb.className='feedback'; fb.textContent='';
+  document.getElementById('next-btn').style.display='none';
+
+  const cont = document.getElementById('options');
+  cont.innerHTML='';
+  const shuffled = shuffle(q.opts.map((text,i)=>({text,orig:i})));
+  shuffled.forEach((opt,idx)=>{
+    const btn = document.createElement('button');
+    btn.className='opt-btn';
+    btn.dataset.orig = opt.orig; // 👈 MUHIM: to'g'ri javobni topish uchun
+    btn.innerHTML=`<span class="opt-key">[${keys[idx]}]</span> ${opt.text}`;
+    btn.onclick=()=>checkAns(opt.orig, q.ans, btn, cont);
+    cont.appendChild(btn);
+  });
+  document.getElementById('footer-s').textContent=`SAVOL ${current+1}/${pool.length} | ${q.cat}`;
+}
+
+function checkAns(sel, correct, btn, cont){
+  const allBtns = cont.querySelectorAll('.opt-btn');
+  allBtns.forEach(b => b.disabled = true);
+  
+  const fb = document.getElementById('feedback');
+  
+  if(sel === correct){
+    // ✅ To'g'ri javob
+    btn.classList.add('correct');
+    score++;
+    fb.textContent = '[ ✓ ] TO\'G\'RI!';
+    fb.className = 'feedback fb-ok show';
+  } else {
+    // ❌ Noto'g'ri javob — to'g'risini ham ko'rsatish
+    btn.classList.add('wrong');
+    wrongC++;
+    fb.textContent = '[ ✗ ] NOTO\'G\'RI. To\'g\'ri javob: ' + pool[current].opts[correct];
+    fb.className = 'feedback fb-err show';
+    
+    // 🔍 To'g'ri javob tugmasini topib, yashil rangda ajratish
+    allBtns.forEach(b => {
+      const optOrig = parseInt(b.dataset.orig);
+      if(optOrig === correct){
+        b.classList.add('correct');
+      }
+    });
+  }
+  
+  document.getElementById('correct-count').textContent = score;
+  document.getElementById('wrong-count').textContent = wrongC;
+  document.getElementById('next-btn').style.display = 'inline-block';
+}
+
+function nextQ(){
+  current++;
+  if(current >= pool.length) showResult();
+  else loadQ();
+}
+
+function showResult(){
+  document.getElementById('quiz-screen').style.display='none';
+  document.getElementById('result-screen').style.display='block';
+  const total = pool.length;
+  const pct = Math.round((score/total)*100);
+  document.getElementById('res-total').textContent = total;
+  document.getElementById('res-correct').textContent = score;
+  document.getElementById('res-wrong').textContent = wrongC;
+  document.getElementById('res-pct').textContent = pct+'%';
+  setTimeout(()=>{ document.getElementById('grade-fill').style.width=pct+'%'; },150);
+
+  let grade,label,ascii,pass;
+  if(pct>=90){ grade='A+'; label='MUKAMMAL — LINUX GURU!'; pass=true;
+    ascii=`  ██████╗ ██████╗ ██╗██╗     ██╗    ██╗███████╗██╗
+  ██╔══██╗██╔══██╗██║██║     ██║    ██║██╔════╝██║
+  ██████╔╝██████╔╝██║██║     ██║ █╗ ██║█████╗  ██║
+  ██╔══██╗██╔══██╗██║██║     ██║███╗██║██╔══╝  ╚═╝
+  ██████╔╝██║  ██║██║███████╗╚███╔███╔╝███████╗██╗
+  ╚═════╝ ╚═╝  ╚═╝╚═╝╚══════╝ ╚══╝╚══╝╚══════╝╚═╝`;
+  } else if(pct>=70){ grade='B'; label='YAXSHI — Yana mashq qiling!'; pass=true;
+    ascii=`  ██████╗      ██████╗ ██████╗  ██████╗  ██╗
+  ██╔══██╗    ██╔════╝ ██╔══██╗██╔═══██╗ ██║
+  ██████╔╝    ██║  ███╗██████╔╝██║   ██║ ██║
+  ██╔══██╗    ██║   ██║██╔══██╗██║   ██║ ╚═╝
+  ██████╔╝    ╚██████╔╝██║  ██║╚██████╔╝ ██╗
+  ╚═════╝      ╚═════╝ ╚═╝  ╚═╝ ╚═════╝  ╚═╝`;
+  } else if(pct>=50){ grade='C'; label="O'RTA — Ko'proq o'qing!"; pass=true;
+    ascii=`   ██████╗ 
+  ██╔════╝ 
+  ██║      
+  ██║      
+  ╚██████╗ 
+   ╚═════╝ `;
+  } else { grade='F'; label="QONIQARSIZ — Qayta o'rganing!"; pass=false;
+    ascii=`  ███████╗ █████╗ ██╗██╗     
+  ██╔════╝██╔══██╗██║██║     
+  █████╗  ███████║██║██║     
+  ██╔══╝  ██╔══██║██║██║     
+  ██║     ██║  ██║██║███████╗
+  ╚═╝     ╚═╝  ╚═╝╚═╝╚══════╝`;
+  }
+  const ae = document.getElementById('res-ascii');
+  ae.textContent = ascii;
+  ae.className = 'res-ascii '+(pass?'pass':'fail');
+  const ge = document.getElementById('grade-text');
+  ge.textContent = grade;
+  ge.className = 'grade-text'+(pass?'':' low');
+  document.getElementById('grade-label').textContent = label;
+  document.getElementById('footer-s').textContent=`TUGADI | ${pct}% | ${score}/${total} TO'G'RI`;
+}
+
+function restartSame(){ startQuiz(lastMode); }
+
+function goHome(){
+  document.getElementById('result-screen').style.display='none';
+  document.getElementById('quiz-screen').style.display='none';
+  document.getElementById('boot-screen').style.display='block';
+  document.getElementById('footer-s').textContent='SYSTEM READY';
+}
+</script>
+</body>
+</html>
