@@ -73,6 +73,12 @@
   .fb-err{color:var(--red);border-color:var(--red);background:rgba(255,51,51,0.04);}
   .next-btn{padding:10px 26px;background:transparent;border:1px solid #1a3a4a;color:var(--cyan);font-family:'JetBrains Mono',monospace;font-size:12px;cursor:pointer;letter-spacing:3px;transition:all 0.2s;display:none;}
   .next-btn:hover{background:rgba(0,255,255,0.06);border-color:var(--cyan);box-shadow:0 0 14px rgba(0,255,255,0.15);}
+  .quiz-nav{display:flex;gap:8px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid #111;}
+  .nav-btn{padding:6px 14px;background:transparent;font-family:'JetBrains Mono',monospace;font-size:10px;cursor:pointer;letter-spacing:2px;transition:all 0.2s;border:1px solid;}
+  .nav-btn-home{border-color:#222;color:#444;}
+  .nav-btn-home:hover{border-color:#555;color:#aaa;background:rgba(255,255,255,0.03);}
+  .nav-btn-switch{border-color:#1a3a2a;color:#2a6a4a;}
+  .nav-btn-switch:hover{border-color:var(--green);color:var(--green);background:rgba(0,255,65,0.04);}
 
   /* RESULT SUMMARY */
   #result-screen{display:none;}
@@ -193,6 +199,10 @@
 
     <!-- QUIZ -->
     <div id="quiz-screen">
+      <div class="quiz-nav">
+        <button class="nav-btn nav-btn-home" onclick="confirmGoHome()">⌂ BOSH MENYU</button>
+        <button class="nav-btn nav-btn-switch" id="switch-mode-btn" onclick="confirmSwitch()">⇄ REJIM O'ZGARTIRISH</button>
+      </div>
       <div class="q-header">
         <div class="prompt"><span class="ph">root@kali</span>:<span class="pd">~/quiz</span>$ <span style="color:#444">./run.sh</span></div>
         <div class="stats">
@@ -262,6 +272,34 @@
     <div class="dialog-title">// QAYTA ISHLASH</div>
     <div class="dialog-sub" id="dialog-sub">Qanday davom etishni tanlang:</div>
     <div class="dialog-btns" id="dialog-btns"></div>
+  </div>
+</div>
+
+<!-- SWITCH MODE DIALOG -->
+<div class="dialog-overlay" id="switch-dialog">
+  <div class="dialog-box">
+    <div class="dialog-title">// REJIM O'ZGARTIRISH</div>
+    <div class="dialog-sub" id="switch-dialog-sub">Joriy test bekor qilinadi. Qaysi rejimga o'tmoqchisiz?</div>
+    <div class="dialog-btns" id="switch-dialog-btns"></div>
+  </div>
+</div>
+
+<!-- HOME CONFIRM DIALOG -->
+<div class="dialog-overlay" id="home-dialog">
+  <div class="dialog-box">
+    <div class="dialog-title">// BOSH MENYUGA QAYTISH</div>
+    <div class="dialog-sub">Joriy test bekor qilinadi. Davom etasizmi?</div>
+    <div class="dialog-btns">
+      <button class="dbtn" onclick="closeAllDialogs();goHome();">
+        <span class="dbtn-icon">⌂</span>
+        <div><div style="font-size:12px;color:var(--green);letter-spacing:1px">HA, BOSH MENYUGA</div><div style="font-size:10px;color:#444;margin-top:3px">Joriy natijalar saqlanmaydi</div></div>
+      </button>
+      <div class="dialog-sep"></div>
+      <button class="dbtn cancel-btn" onclick="closeAllDialogs()">
+        <span class="dbtn-icon" style="color:#333">✕</span>
+        <span style="font-size:11px;color:#444;letter-spacing:2px">TESTNI DAVOM ETTIRISH</span>
+      </button>
+    </div>
   </div>
 </div>
 
@@ -395,6 +433,9 @@ function startQuiz(n, useExistingPool=false){
     pool = n===112 ? [...ALL] : shuffle(ALL).slice(0,20);
   }
   current=0; score=0; wrongC=0; history=[];
+  // update switch button label
+  const swBtn=document.getElementById('switch-mode-btn');
+  swBtn.textContent = n===20 ? '⇄ TO\'LIQ TEST (112)' : '⇄ RANDOM TEST (20)';
   show('quiz-screen');
   loadQ();
 }
@@ -515,12 +556,12 @@ function openRestartDialog(){
     const b1=document.createElement('button');
     b1.className='dbtn';
     b1.innerHTML='<span class="dbtn-icon">🔀</span><div><div style="font-size:12px;color:var(--green);letter-spacing:1px">YANGI RANDOM</div><div style="font-size:10px;color:#444;margin-top:3px">112 dan yangi 20 ta savol aralashtirilib tanlanadi</div></div>';
-    b1.onclick=()=>{closeDialog();startQuiz(20,false);};
+    b1.onclick=()=>{closeAllDialogs();startQuiz(20,false);};
     // Option 2: same pool
     const b2=document.createElement('button');
     b2.className='dbtn';
     b2.innerHTML='<span class="dbtn-icon">↺</span><div><div style="font-size:12px;color:var(--cyan);letter-spacing:1px">AVVALGI SAVOLLAR</div><div style="font-size:10px;color:#444;margin-top:3px">Xuddi o\'sha 20 ta savolni qaytadan ishlash</div></div>';
-    b2.onclick=()=>{closeDialog();startQuiz(20,true);};
+    b2.onclick=()=>{closeAllDialogs();startQuiz(20,true);};
     btns.appendChild(b1);
     const sep=document.createElement('div'); sep.className='dialog-sep'; btns.appendChild(sep);
     btns.appendChild(b2);
@@ -528,7 +569,7 @@ function openRestartDialog(){
     const b1=document.createElement('button');
     b1.className='dbtn';
     b1.innerHTML='<span class="dbtn-icon">↺</span><div><div style="font-size:12px;color:var(--green);letter-spacing:1px">BARCHA 112 SAVOLNI QAYTA ISHLASH</div><div style="font-size:10px;color:#444;margin-top:3px">Birinchidan boshlab hamma savol</div></div>';
-    b1.onclick=()=>{closeDialog();startQuiz(112,false);};
+    b1.onclick=()=>{closeAllDialogs();startQuiz(112,false);};
     btns.appendChild(b1);
   }
 
@@ -536,19 +577,57 @@ function openRestartDialog(){
   const cancel=document.createElement('button');
   cancel.className='dbtn cancel-btn';
   cancel.innerHTML='<span class="dbtn-icon" style="color:#333">✕</span><span style="font-size:11px;color:#444;letter-spacing:2px">BEKOR QILISH</span>';
-  cancel.onclick=closeDialog;
+  cancel.onclick=closeAllDialogs;
   btns.appendChild(cancel);
 
   document.getElementById('restart-dialog').classList.add('show');
 }
 
-function closeDialog(){document.getElementById('restart-dialog').classList.remove('show');}
+function closeAllDialogs(){
+  document.getElementById('restart-dialog').classList.remove('show');
+  document.getElementById('switch-dialog').classList.remove('show');
+  document.getElementById('home-dialog').classList.remove('show');
+}
+
+function confirmGoHome(){
+  closeAllDialogs();
+  document.getElementById('home-dialog').classList.add('show');
+}
+
+function confirmSwitch(){
+  closeAllDialogs();
+  const otherMode = lastMode===20 ? 112 : 20;
+  const sub = document.getElementById('switch-dialog-sub');
+  const btns = document.getElementById('switch-dialog-btns');
+  sub.textContent = lastMode===20
+    ? "Hozir 20 ta RANDOM test ishlayapsiz. 112 talik TO'LIQ testga o'tmoqchimisiz?"
+    : "Hozir 112 ta TO'LIQ test ishlayapsiz. 20 ta RANDOM testga o'tmoqchimisiz?";
+  btns.innerHTML='';
+  const b1=document.createElement('button');
+  b1.className='dbtn';
+  if(otherMode===112){
+    b1.innerHTML='<span class="dbtn-icon" style="color:var(--cyan)">▶▶</span><div><div style="font-size:12px;color:var(--cyan);letter-spacing:1px">TO\'LIQ TEST — 112 SAVOL</div><div style="font-size:10px;color:#444;margin-top:3px">Barcha savollar ketma-ket chiqadi</div></div>';
+  } else {
+    b1.innerHTML='<span class="dbtn-icon">▶</span><div><div style="font-size:12px;color:var(--green);letter-spacing:1px">RANDOM TEST — 20 SAVOL</div><div style="font-size:10px;color:#444;margin-top:3px">112 dan tasodifiy 20 ta tanlanadi</div></div>';
+  }
+  b1.onclick=()=>{closeAllDialogs();startQuiz(otherMode,false);};
+  btns.appendChild(b1);
+  const sep=document.createElement('div'); sep.className='dialog-sep'; btns.appendChild(sep);
+  const cancel=document.createElement('button');
+  cancel.className='dbtn cancel-btn';
+  cancel.innerHTML='<span class="dbtn-icon" style="color:#333">✕</span><span style="font-size:11px;color:#444;letter-spacing:2px">TESTNI DAVOM ETTIRISH</span>';
+  cancel.onclick=closeAllDialogs;
+  btns.appendChild(cancel);
+  document.getElementById('switch-dialog').classList.add('show');
+}
 
 // close on overlay click
-document.getElementById('restart-dialog').addEventListener('click',function(e){if(e.target===this)closeDialog();});
+document.getElementById('restart-dialog').addEventListener('click',function(e){if(e.target===this)closeAllDialogs();});
+document.getElementById('switch-dialog').addEventListener('click',function(e){if(e.target===this)closeAllDialogs();});
+document.getElementById('home-dialog').addEventListener('click',function(e){if(e.target===this)closeAllDialogs();});
 
 function goHome(){
-  closeDialog();
+  closeAllDialogs();
   show('boot-screen');
   document.getElementById('footer-s').textContent='SYSTEM READY';
 }
