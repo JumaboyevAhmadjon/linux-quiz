@@ -473,8 +473,27 @@ function checkAns(sel,correct,btn,cont,shuffled,q){
   cont.querySelectorAll('.opt-btn').forEach(b=>b.disabled=true);
   const fb=document.getElementById('feedback');
   const isOk=sel===correct;
-  if(isOk){btn.classList.add('correct');score++;fb.textContent='[ ✓ ] TO\'G\'RI!';fb.className='feedback fb-ok show';}
-  else{btn.classList.add('wrong');wrongC++;fb.textContent='[ ✗ ] NOTO\'G\'RI.';fb.className='feedback fb-err show';}
+  if(isOk){
+    btn.classList.add('correct');
+    score++;
+    fb.textContent='[ ✓ ] TO\'G\'RI!';
+    fb.className='feedback fb-ok show';
+  } else {
+    btn.classList.add('wrong');
+    wrongC++;
+    // to'g'ri javobni yashil qilib ko'rsat
+    const allBtns=cont.querySelectorAll('.opt-btn');
+    allBtns.forEach(b=>{
+      const keySpan=b.querySelector('.opt-key');
+      if(keySpan && b!==btn){
+        // bu tugma to'g'ri javobmi? shuffled orqali tekshiramiz
+        const optText=b.textContent.replace(/^\[.\]\s*/,'').trim();
+        if(q.opts[correct]===optText) b.classList.add('correct');
+      }
+    });
+    fb.textContent='[ ✗ ] NOTO\'G\'RI. To\'g\'ri javob yashil bilan belgilandi.';
+    fb.className='feedback fb-err show';
+  }
   document.getElementById('correct-count').textContent=score;
   document.getElementById('wrong-count').textContent=wrongC;
   // save to history
