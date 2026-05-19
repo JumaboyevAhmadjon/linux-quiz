@@ -3,211 +3,239 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Linux Quiz Terminal</title>
+<title>Kiberhavfsizlik Quiz</title>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
-  :root{--bg:#0d0d0d;--bg3:#1a1a1a;--green:#00ff41;--gdim:#00cc33;--amber:#ffb000;--red:#ff3333;--cyan:#00ffff;--white:#e0e0e0;--gray:#555;--border:#1a1a1a;}
-  *{margin:0;padding:0;box-sizing:border-box;}
-  body{background:var(--bg);color:var(--green);font-family:'JetBrains Mono',monospace;min-height:100vh;}
-  body::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px);pointer-events:none;z-index:1000;}
-  body::after{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,0.6) 100%);pointer-events:none;z-index:999;}
-  .wrap{max-width:900px;margin:0 auto;padding:20px;min-height:100vh;display:flex;flex-direction:column;}
-  .t-header{border:1px solid #1a3a1a;border-bottom:none;padding:8px 16px;display:flex;align-items:center;gap:12px;background:#0f1a0f;}
-  .dots{display:flex;gap:6px;}
-  .dot{width:12px;height:12px;border-radius:50%;}
-  .dot.r{background:#ff5f57;}.dot.y{background:#febc2e;}.dot.g{background:#28c840;}
-  .t-title{font-family:'Share Tech Mono',monospace;font-size:12px;color:#2a4a2a;flex:1;text-align:center;letter-spacing:2px;}
-  .t-body{border:1px solid #1a3a1a;background:var(--bg);padding:32px;flex:1;box-shadow:0 0 60px rgba(0,255,65,0.05),inset 0 0 60px rgba(0,0,0,0.4);}
-  .t-footer{border:1px solid #1a3a1a;border-top:none;padding:6px 16px;display:flex;justify-content:space-between;background:#0f1a0f;font-size:10px;color:#2a4a2a;letter-spacing:1px;}
-
-  /* BOOT */
-  .ascii-art{font-size:11px;color:var(--green);line-height:1.3;margin-bottom:28px;text-shadow:0 0 12px rgba(0,255,65,0.5);white-space:pre;opacity:0;animation:fi 0.4s 0.1s forwards;}
-  .boot-text{font-size:12px;color:var(--white);line-height:2;}
-  .bl{opacity:0;}
-  .bl:nth-child(1){animation:fi .1s .2s forwards;}.bl:nth-child(2){animation:fi .1s .45s forwards;}
-  .bl:nth-child(3){animation:fi .1s .7s forwards;}.bl:nth-child(4){animation:fi .1s .95s forwards;}
-  .bl:nth-child(5){animation:fi .1s 1.2s forwards;}.bl:nth-child(6){animation:fi .1s 1.45s forwards;}
-  .bl:nth-child(7){animation:fi .1s 1.7s forwards;}.bl:nth-child(8){animation:fi .1s 1.95s forwards;}
-  .ok{color:#28c840;}.wa{color:var(--amber);}.gc{color:var(--green);}
-  .mode-btns{display:flex;gap:16px;margin-top:32px;flex-wrap:wrap;opacity:0;animation:fi 0.4s 2.3s forwards;}
-  .mode-btn{flex:1;min-width:200px;padding:18px 24px;border:1px solid var(--green);background:transparent;color:var(--green);font-family:'JetBrains Mono',monospace;cursor:pointer;text-align:left;transition:all 0.2s;position:relative;overflow:hidden;}
-  .mode-btn::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:rgba(0,255,65,0.06);transition:left 0.3s;}
-  .mode-btn:hover{box-shadow:0 0 24px rgba(0,255,65,0.25);color:#fff;}.mode-btn:hover::before{left:0;}
-  .mode-btn.all-mode{border-color:var(--cyan);color:var(--cyan);}
-  .mode-btn.all-mode::before{background:rgba(0,255,255,0.05);}
-  .mode-btn.all-mode:hover{box-shadow:0 0 24px rgba(0,255,255,0.2);color:#fff;}
-  .mode-btn-count{font-size:22px;font-family:'Share Tech Mono',monospace;margin-bottom:6px;}
-  .mode-btn-title{font-size:13px;letter-spacing:3px;font-weight:700;margin-bottom:8px;}
-  .mode-btn-desc{font-size:11px;opacity:0.6;letter-spacing:1px;line-height:1.6;}
-
-  /* QUIZ */
-  #quiz-screen{display:none;}
-  .q-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid #161616;}
-  .prompt{font-size:11px;color:var(--gray);}
-  .prompt .ph{color:var(--green);}.prompt .pd{color:var(--cyan);}
-  .stats{display:flex;gap:16px;font-size:11px;}
-  .stat-item{color:var(--gray);}.stat-item span{color:var(--cyan);}
-  .prog-wrap{margin-bottom:24px;}
-  .prog-label{font-size:10px;color:#333;margin-bottom:6px;display:flex;justify-content:space-between;letter-spacing:2px;}
-  .prog-label span{color:var(--gdim);}
-  .prog-bar{height:2px;background:#111;overflow:hidden;}
-  .prog-fill{height:100%;background:var(--green);transition:width 0.5s ease;box-shadow:0 0 10px var(--green);}
-  .cat-badge{font-size:10px;color:var(--amber);border:1px solid rgba(255,176,0,0.3);padding:3px 12px;letter-spacing:3px;margin-bottom:20px;display:inline-block;background:rgba(255,176,0,0.04);}
-  .q-num{font-size:11px;color:#333;margin-bottom:8px;font-family:'Share Tech Mono',monospace;}
-  .q-text{font-size:16px;color:var(--white);line-height:1.65;margin-bottom:24px;padding-left:16px;border-left:2px solid var(--green);}
-  .options{display:flex;flex-direction:column;gap:9px;margin-bottom:26px;}
-  .opt-btn{padding:13px 18px;background:#0f0f0f;border:1px solid #1c1c1c;color:#aaa;font-family:'JetBrains Mono',monospace;font-size:13px;cursor:pointer;text-align:left;transition:all 0.15s;display:flex;align-items:center;gap:14px;opacity:0;animation:si 0.3s forwards;}
-  .opt-btn:nth-child(1){animation-delay:0.04s;}.opt-btn:nth-child(2){animation-delay:0.09s;}
-  .opt-btn:nth-child(3){animation-delay:0.14s;}.opt-btn:nth-child(4){animation-delay:0.19s;}
-  .opt-key{color:#333;font-size:11px;min-width:24px;font-family:'Share Tech Mono',monospace;transition:color 0.15s;}
-  .opt-btn:hover:not(:disabled){border-color:#2a2a2a;background:#141414;color:var(--green);padding-left:24px;}
-  .opt-btn:hover:not(:disabled) .opt-key{color:var(--green);}
-  .opt-btn.correct{border-color:var(--green);background:rgba(0,255,65,0.07);color:var(--green);box-shadow:0 0 16px rgba(0,255,65,0.15);}
-  .opt-btn.correct .opt-key{color:var(--green);}
-  .opt-btn.wrong{border-color:var(--red);background:rgba(255,51,51,0.07);color:var(--red);}
-  .opt-btn.wrong .opt-key{color:var(--red);}
-  .opt-btn:disabled{cursor:not-allowed;}
-  .feedback{font-size:12px;padding:11px 16px;border-left:2px solid;margin-bottom:16px;opacity:0;transition:opacity 0.3s;font-family:'Share Tech Mono',monospace;letter-spacing:1px;min-height:40px;}
-  .feedback.show{opacity:1;}
-  .fb-ok{color:var(--green);border-color:var(--green);background:rgba(0,255,65,0.04);}
-  .fb-err{color:var(--red);border-color:var(--red);background:rgba(255,51,51,0.04);}
-  .next-btn{padding:10px 26px;background:transparent;border:1px solid #1a3a4a;color:var(--cyan);font-family:'JetBrains Mono',monospace;font-size:12px;cursor:pointer;letter-spacing:3px;transition:all 0.2s;display:none;}
-  .next-btn:hover{background:rgba(0,255,255,0.06);border-color:var(--cyan);box-shadow:0 0 14px rgba(0,255,255,0.15);}
-  .quiz-nav{display:flex;gap:8px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid #111;}
-  .nav-btn{padding:6px 14px;background:transparent;font-family:'JetBrains Mono',monospace;font-size:10px;cursor:pointer;letter-spacing:2px;transition:all 0.2s;border:1px solid;}
-  .nav-btn-home{border-color:#666;color:#ccc;background:rgba(255,255,255,0.05);}
-  .nav-btn-home:hover{border-color:#fff;color:#fff;background:rgba(255,255,255,0.1);}
-  .nav-btn-switch{border-color:var(--green);color:var(--green);background:rgba(0,255,65,0.08);}
-  .nav-btn-switch:hover{border-color:#fff;color:#fff;background:rgba(0,255,65,0.18);box-shadow:0 0 12px rgba(0,255,65,0.25);}
-
-  /* RESULT SUMMARY */
-  #result-screen{display:none;}
-  .res-ascii{font-size:10px;line-height:1.3;margin-bottom:20px;white-space:pre;}
-  .res-ascii.pass{color:var(--green);text-shadow:0 0 16px rgba(0,255,65,0.5);}
-  .res-ascii.fail{color:var(--red);text-shadow:0 0 16px rgba(255,51,51,0.4);}
-  .res-stats{border:1px solid #161616;padding:18px;margin:16px 0;background:#0a0a0a;}
-  .res-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #111;font-size:13px;color:#444;}
-  .res-row:last-child{border-bottom:none;}
-  .res-row span{color:var(--white);}
-  .res-row .big{color:var(--green);font-size:20px;font-family:'Share Tech Mono',monospace;}
-  .grade-bar{height:4px;background:#0a0a0a;border:1px solid #161616;margin:14px 0 8px;overflow:hidden;}
-  .grade-fill{height:100%;background:linear-gradient(90deg,var(--gdim),var(--green));box-shadow:0 0 12px var(--green);transition:width 1.2s ease;width:0%;}
-  .grade-text{font-size:38px;font-family:'Share Tech Mono',monospace;color:var(--green);text-shadow:0 0 30px rgba(0,255,65,0.5);display:block;line-height:1;margin-top:10px;}
-  .grade-text.low{color:var(--red);text-shadow:0 0 30px rgba(255,51,51,0.4);}
-  .grade-label{font-size:11px;color:#444;letter-spacing:4px;margin-top:6px;}
-
-  /* ACTION BUTTONS ROW */
-  .action-row{display:flex;gap:12px;margin-top:24px;flex-wrap:wrap;}
-  .abtn{padding:10px 20px;background:transparent;font-family:'JetBrains Mono',monospace;font-size:11px;cursor:pointer;letter-spacing:3px;transition:all 0.2s;border:1px solid;}
-  .abtn-review{border-color:var(--amber);color:var(--amber);}
-  .abtn-review:hover{background:rgba(255,176,0,0.07);box-shadow:0 0 16px rgba(255,176,0,0.2);}
-  .abtn-restart{border-color:var(--green);color:var(--green);}
-  .abtn-restart:hover{background:rgba(0,255,65,0.07);box-shadow:0 0 16px rgba(0,255,65,0.2);}
-  .abtn-home{border-color:#333;color:#555;}
-  .abtn-home:hover{border-color:#555;color:#aaa;}
-
-  /* REVIEW SCREEN */
-  #review-screen{display:none;}
-  .review-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid #161616;}
-  .review-title{font-size:13px;color:var(--amber);letter-spacing:3px;font-family:'Share Tech Mono',monospace;}
-  .review-legend{display:flex;gap:16px;font-size:11px;}
-  .leg-ok{color:var(--green);}.leg-err{color:var(--red);}
-
-  .review-list{display:flex;flex-direction:column;gap:12px;max-height:65vh;overflow-y:auto;padding-right:4px;}
-  .review-list::-webkit-scrollbar{width:4px;}
-  .review-list::-webkit-scrollbar-track{background:#0a0a0a;}
-  .review-list::-webkit-scrollbar-thumb{background:#1a3a1a;border-radius:2px;}
-
-  .review-item{border:1px solid;padding:16px;transition:border-color 0.2s;}
-  .review-item.ok-item{border-color:#0d2a0d;background:rgba(0,255,65,0.03);}
-  .review-item.err-item{border-color:#2a0d0d;background:rgba(255,51,51,0.03);}
-
-  .review-item-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:10px;}
-  .review-num{font-family:'Share Tech Mono',monospace;font-size:10px;color:#444;min-width:32px;padding-top:2px;}
-  .review-status{font-size:12px;min-width:20px;}
-  .review-cat{font-size:9px;letter-spacing:2px;padding:2px 8px;border:1px solid;margin-bottom:8px;display:inline-block;}
-  .review-cat.ok-cat{color:var(--green);border-color:rgba(0,255,65,0.2);}
-  .review-cat.err-cat{color:var(--red);border-color:rgba(255,51,51,0.2);}
-  .review-q{font-size:13px;color:var(--white);line-height:1.5;}
-
-  .review-answers{display:flex;flex-direction:column;gap:5px;margin-top:10px;padding-left:44px;}
-  .review-ans{font-size:12px;font-family:'Share Tech Mono',monospace;padding:5px 10px;border-left:2px solid;}
-  .review-ans.your-ok{color:var(--green);border-color:var(--green);background:rgba(0,255,65,0.05);}
-  .review-ans.your-err{color:var(--red);border-color:var(--red);background:rgba(255,51,51,0.05);}
-  .review-ans.correct-ans{color:var(--green);border-color:var(--green);background:rgba(0,255,65,0.05);}
-  .review-ans.neutral{color:#444;border-color:#1a1a1a;}
-
-  .review-back-row{margin-top:20px;display:flex;gap:12px;}
-
-  /* RESTART DIALOG */
-  .dialog-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:500;display:none;align-items:center;justify-content:center;}
-  .dialog-overlay.show{display:flex;}
-  .dialog-box{border:1px solid var(--green);background:#0a0a0a;padding:32px;max-width:480px;width:90%;box-shadow:0 0 40px rgba(0,255,65,0.15);}
-  .dialog-title{font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--green);letter-spacing:3px;margin-bottom:8px;}
-  .dialog-sub{font-size:11px;color:#444;letter-spacing:1px;margin-bottom:24px;line-height:1.7;}
-  .dialog-btns{display:flex;flex-direction:column;gap:10px;}
-  .dbtn{padding:13px 18px;background:#0f0f0f;border:1px solid #222;color:#aaa;font-family:'JetBrains Mono',monospace;font-size:12px;cursor:pointer;text-align:left;transition:all 0.15s;display:flex;align-items:center;gap:12px;}
-  .dbtn:hover{border-color:var(--green);color:var(--green);background:rgba(0,255,65,0.05);}
-  .dbtn-icon{color:var(--green);font-family:'Share Tech Mono',monospace;font-size:11px;min-width:20px;}
-  .dbtn.cancel-btn:hover{border-color:#333;color:#666;background:transparent;}
-  .dialog-sep{height:1px;background:#111;margin:4px 0;}
-
-  .cursor{display:inline-block;width:7px;height:14px;background:var(--green);animation:blink 1s step-end infinite;vertical-align:text-bottom;margin-left:2px;}
-  @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
-  @keyframes fi{to{opacity:1}}
-  @keyframes si{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
+:root{--bg:#0d0d0d;--green:#00ff41;--gdim:#00cc33;--amber:#ffb000;--red:#ff3333;--cyan:#00ffff;--white:#e0e0e0;--gray:#555;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--green);font-family:'JetBrains Mono',monospace;min-height:100vh;}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px);pointer-events:none;z-index:1000;}
+body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,0.6) 100%);pointer-events:none;z-index:999;}
+.wrap{max-width:960px;margin:0 auto;padding:20px;min-height:100vh;display:flex;flex-direction:column;}
+.t-header{border:1px solid #1a3a1a;border-bottom:none;padding:8px 16px;display:flex;align-items:center;gap:12px;background:#0f1a0f;}
+.dots{display:flex;gap:6px;}.dot{width:12px;height:12px;border-radius:50%;}
+.dot.r{background:#ff5f57;}.dot.y{background:#febc2e;}.dot.g{background:#28c840;}
+.t-title{font-family:'Share Tech Mono',monospace;font-size:12px;color:#2a4a2a;flex:1;text-align:center;letter-spacing:2px;}
+.t-body{border:1px solid #1a3a1a;background:var(--bg);padding:32px;flex:1;box-shadow:0 0 60px rgba(0,255,65,0.05),inset 0 0 60px rgba(0,0,0,0.4);}
+.t-footer{border:1px solid #1a3a1a;border-top:none;padding:6px 16px;display:flex;justify-content:space-between;background:#0f1a0f;font-size:10px;color:#2a4a2a;letter-spacing:1px;}
+.ascii-art{font-size:11px;color:var(--green);line-height:1.3;margin-bottom:28px;text-shadow:0 0 12px rgba(0,255,65,0.5);white-space:pre;opacity:0;animation:fi 0.4s 0.1s forwards;}
+.boot-text{font-size:12px;color:var(--white);line-height:2;}
+.bl{opacity:0;}
+.bl:nth-child(1){animation:fi .1s .2s forwards;}.bl:nth-child(2){animation:fi .1s .45s forwards;}
+.bl:nth-child(3){animation:fi .1s .7s forwards;}.bl:nth-child(4){animation:fi .1s .95s forwards;}
+.bl:nth-child(5){animation:fi .1s 1.2s forwards;}.bl:nth-child(6){animation:fi .1s 1.45s forwards;}
+.bl:nth-child(7){animation:fi .1s 1.7s forwards;}.bl:nth-child(8){animation:fi .1s 1.95s forwards;}
+.ok{color:#28c840;}.wa{color:var(--amber);}.gc{color:var(--green);}
+.mode-section{opacity:0;animation:fi 0.4s 2.3s forwards;margin-top:32px;}
+.section-label{font-size:10px;color:#444;letter-spacing:3px;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #111;font-family:'Share Tech Mono',monospace;}
+.special-btns{display:flex;gap:16px;margin-bottom:20px;flex-wrap:wrap;}
+.mode-btn{flex:1;min-width:200px;padding:18px 24px;border:1px solid var(--green);background:transparent;color:var(--green);font-family:'JetBrains Mono',monospace;cursor:pointer;text-align:left;transition:all 0.2s;position:relative;overflow:hidden;}
+.mode-btn::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:rgba(0,255,65,0.06);transition:left 0.3s;}
+.mode-btn:hover{box-shadow:0 0 24px rgba(0,255,65,0.25);color:#fff;}.mode-btn:hover::before{left:0;}
+.mode-btn.all-mode{border-color:var(--cyan);color:var(--cyan);}.mode-btn.all-mode::before{background:rgba(0,255,255,0.05);}
+.mode-btn.all-mode:hover{box-shadow:0 0 24px rgba(0,255,255,0.2);color:#fff;}
+.mode-btn-count{font-size:22px;font-family:'Share Tech Mono',monospace;margin-bottom:6px;}
+.mode-btn-title{font-size:13px;letter-spacing:3px;font-weight:700;margin-bottom:8px;}
+.mode-btn-desc{font-size:11px;opacity:0.6;letter-spacing:1px;line-height:1.6;}
+.group-btns{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:10px;}
+.group-btn{padding:14px 16px;border:1px solid var(--green);background:transparent;color:var(--green);font-family:'JetBrains Mono',monospace;cursor:pointer;text-align:left;transition:all 0.2s;position:relative;overflow:hidden;}
+.group-btn::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:rgba(0,255,65,0.05);transition:left 0.3s;}
+.group-btn:hover{box-shadow:0 0 18px rgba(0,255,65,0.2);color:#fff;}.group-btn:hover::before{left:0;}
+.group-btn.group-btn-cyan{border-color:var(--cyan);color:var(--cyan);}.group-btn.group-btn-cyan::before{background:rgba(0,255,255,0.05);}
+.group-btn.group-btn-cyan:hover{box-shadow:0 0 18px rgba(0,255,255,0.2);}
+.group-btn.group-btn-amber{border-color:var(--amber);color:var(--amber);}.group-btn.group-btn-amber::before{background:rgba(255,176,0,0.05);}
+.group-btn.group-btn-amber:hover{box-shadow:0 0 18px rgba(255,176,0,0.2);}
+#quiz-screen{display:none;}
+.q-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid #161616;}
+.prompt{font-size:11px;color:var(--gray);}.prompt .ph{color:var(--green);}.prompt .pd{color:var(--cyan);}
+.stats{display:flex;gap:16px;font-size:11px;}.stat-item{color:var(--gray);}.stat-item span{color:var(--cyan);}
+.prog-wrap{margin-bottom:24px;}
+.prog-label{font-size:10px;color:#333;margin-bottom:6px;display:flex;justify-content:space-between;letter-spacing:2px;}.prog-label span{color:var(--gdim);}
+.prog-bar{height:2px;background:#111;overflow:hidden;}.prog-fill{height:100%;background:var(--green);transition:width 0.5s ease;box-shadow:0 0 10px var(--green);}
+.cat-badge{font-size:10px;color:var(--amber);border:1px solid rgba(255,176,0,0.3);padding:3px 12px;letter-spacing:3px;margin-bottom:20px;display:inline-block;background:rgba(255,176,0,0.04);}
+.q-num{font-size:11px;color:#333;margin-bottom:8px;font-family:'Share Tech Mono',monospace;}
+.q-text{font-size:16px;color:var(--white);line-height:1.65;margin-bottom:24px;padding-left:16px;border-left:2px solid var(--green);}
+.options{display:flex;flex-direction:column;gap:9px;margin-bottom:26px;}
+.opt-btn{padding:13px 18px;background:#0f0f0f;border:1px solid #1c1c1c;color:#aaa;font-family:'JetBrains Mono',monospace;font-size:13px;cursor:pointer;text-align:left;transition:all 0.15s;display:flex;align-items:center;gap:14px;opacity:0;animation:si 0.3s forwards;}
+.opt-btn:nth-child(1){animation-delay:0.04s;}.opt-btn:nth-child(2){animation-delay:0.09s;}
+.opt-btn:nth-child(3){animation-delay:0.14s;}.opt-btn:nth-child(4){animation-delay:0.19s;}
+.opt-key{color:#333;font-size:11px;min-width:24px;font-family:'Share Tech Mono',monospace;transition:color 0.15s;}
+.opt-btn:hover:not(:disabled){border-color:#2a2a2a;background:#141414;color:var(--green);padding-left:24px;}
+.opt-btn:hover:not(:disabled) .opt-key{color:var(--green);}
+.opt-btn.correct{border-color:var(--green);background:rgba(0,255,65,0.07);color:var(--green);box-shadow:0 0 16px rgba(0,255,65,0.15);}.opt-btn.correct .opt-key{color:var(--green);}
+.opt-btn.wrong{border-color:var(--red);background:rgba(255,51,51,0.07);color:var(--red);}.opt-btn.wrong .opt-key{color:var(--red);}
+.opt-btn:disabled{cursor:not-allowed;}
+.feedback{font-size:12px;padding:11px 16px;border-left:2px solid;margin-bottom:16px;opacity:0;transition:opacity 0.3s;font-family:'Share Tech Mono',monospace;letter-spacing:1px;min-height:40px;}
+.feedback.show{opacity:1;}.fb-ok{color:var(--green);border-color:var(--green);background:rgba(0,255,65,0.04);}
+.fb-err{color:var(--red);border-color:var(--red);background:rgba(255,51,51,0.04);}
+.next-btn{padding:10px 26px;background:transparent;border:1px solid #1a3a4a;color:var(--cyan);font-family:'JetBrains Mono',monospace;font-size:12px;cursor:pointer;letter-spacing:3px;transition:all 0.2s;display:none;}
+.next-btn:hover{background:rgba(0,255,255,0.06);border-color:var(--cyan);box-shadow:0 0 14px rgba(0,255,255,0.15);}
+.quiz-nav{display:flex;gap:8px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid #111;}
+.nav-btn{padding:6px 14px;background:transparent;font-family:'JetBrains Mono',monospace;font-size:10px;cursor:pointer;letter-spacing:2px;transition:all 0.2s;border:1px solid;}
+.nav-btn-home{border-color:#666;color:#ccc;background:rgba(255,255,255,0.05);}.nav-btn-home:hover{border-color:#fff;color:#fff;background:rgba(255,255,255,0.1);}
+.nav-btn-switch{border-color:var(--green);color:var(--green);background:rgba(0,255,65,0.08);}.nav-btn-switch:hover{border-color:#fff;color:#fff;background:rgba(0,255,65,0.18);box-shadow:0 0 12px rgba(0,255,65,0.25);}
+#result-screen{display:none;}
+.res-ascii{font-size:10px;line-height:1.3;margin-bottom:20px;white-space:pre;}
+.res-ascii.pass{color:var(--green);text-shadow:0 0 16px rgba(0,255,65,0.5);}.res-ascii.fail{color:var(--red);text-shadow:0 0 16px rgba(255,51,51,0.4);}
+.res-stats{border:1px solid #161616;padding:18px;margin:16px 0;background:#0a0a0a;}
+.res-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #111;font-size:13px;color:#444;}.res-row:last-child{border-bottom:none;}.res-row span{color:var(--white);}.res-row .big{color:var(--green);font-size:20px;font-family:'Share Tech Mono',monospace;}
+.grade-bar{height:4px;background:#0a0a0a;border:1px solid #161616;margin:14px 0 8px;overflow:hidden;}
+.grade-fill{height:100%;background:linear-gradient(90deg,var(--gdim),var(--green));box-shadow:0 0 12px var(--green);transition:width 1.2s ease;width:0%;}
+.grade-text{font-size:38px;font-family:'Share Tech Mono',monospace;color:var(--green);text-shadow:0 0 30px rgba(0,255,65,0.5);display:block;line-height:1;margin-top:10px;}.grade-text.low{color:var(--red);text-shadow:0 0 30px rgba(255,51,51,0.4);}
+.grade-label{font-size:11px;color:#444;letter-spacing:4px;margin-top:6px;}
+.action-row{display:flex;gap:12px;margin-top:24px;flex-wrap:wrap;}
+.abtn{padding:10px 20px;background:transparent;font-family:'JetBrains Mono',monospace;font-size:11px;cursor:pointer;letter-spacing:3px;transition:all 0.2s;border:1px solid;}
+.abtn-review{border-color:var(--amber);color:var(--amber);}.abtn-review:hover{background:rgba(255,176,0,0.07);box-shadow:0 0 16px rgba(255,176,0,0.2);}
+.abtn-restart{border-color:var(--green);color:var(--green);}.abtn-restart:hover{background:rgba(0,255,65,0.07);box-shadow:0 0 16px rgba(0,255,65,0.2);}
+.abtn-home{border-color:#333;color:#555;}.abtn-home:hover{border-color:#555;color:#aaa;}
+#review-screen{display:none;}
+.review-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid #161616;}
+.review-title{font-size:13px;color:var(--amber);letter-spacing:3px;font-family:'Share Tech Mono',monospace;}
+.review-legend{display:flex;gap:16px;font-size:11px;}.leg-ok{color:var(--green);}.leg-err{color:var(--red);}
+.review-list{display:flex;flex-direction:column;gap:12px;max-height:65vh;overflow-y:auto;padding-right:4px;}
+.review-list::-webkit-scrollbar{width:4px;}.review-list::-webkit-scrollbar-track{background:#0a0a0a;}.review-list::-webkit-scrollbar-thumb{background:#1a3a1a;border-radius:2px;}
+.review-item{border:1px solid;padding:16px;}.review-item.ok-item{border-color:#0d2a0d;background:rgba(0,255,65,0.03);}.review-item.err-item{border-color:#2a0d0d;background:rgba(255,51,51,0.03);}
+.review-item-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:10px;}
+.review-num{font-family:'Share Tech Mono',monospace;font-size:10px;color:#444;min-width:32px;padding-top:2px;}
+.review-cat{font-size:9px;letter-spacing:2px;padding:2px 8px;border:1px solid;margin-bottom:8px;display:inline-block;}
+.review-cat.ok-cat{color:var(--green);border-color:rgba(0,255,65,0.2);}.review-cat.err-cat{color:var(--red);border-color:rgba(255,51,51,0.2);}
+.review-q{font-size:13px;color:var(--white);line-height:1.5;}
+.review-answers{display:flex;flex-direction:column;gap:5px;margin-top:10px;padding-left:44px;}
+.review-ans{font-size:12px;font-family:'Share Tech Mono',monospace;padding:5px 10px;border-left:2px solid;}
+.review-ans.your-ok{color:var(--green);border-color:var(--green);background:rgba(0,255,65,0.05);}.review-ans.your-err{color:var(--red);border-color:var(--red);background:rgba(255,51,51,0.05);}.review-ans.correct-ans{color:var(--green);border-color:var(--green);background:rgba(0,255,65,0.05);}.review-ans.neutral{color:#444;border-color:#1a1a1a;}
+.review-back-row{margin-top:20px;display:flex;gap:12px;}
+.dialog-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:500;display:none;align-items:center;justify-content:center;}.dialog-overlay.show{display:flex;}
+.dialog-box{border:1px solid var(--green);background:#0a0a0a;padding:32px;max-width:480px;width:90%;box-shadow:0 0 40px rgba(0,255,65,0.15);}
+.dialog-title{font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--green);letter-spacing:3px;margin-bottom:8px;}
+.dialog-sub{font-size:11px;color:#444;letter-spacing:1px;margin-bottom:24px;line-height:1.7;}
+.dialog-btns{display:flex;flex-direction:column;gap:10px;}
+.dbtn{padding:13px 18px;background:#0f0f0f;border:1px solid #222;color:#aaa;font-family:'JetBrains Mono',monospace;font-size:12px;cursor:pointer;text-align:left;transition:all 0.15s;display:flex;align-items:center;gap:12px;}.dbtn:hover{border-color:var(--green);color:var(--green);background:rgba(0,255,65,0.05);}
+.dbtn-icon{color:var(--green);font-family:'Share Tech Mono',monospace;font-size:11px;min-width:20px;}.dbtn.cancel-btn:hover{border-color:#333;color:#666;background:transparent;}
+.dialog-sep{height:1px;background:#111;margin:4px 0;}
+.cursor{display:inline-block;width:7px;height:14px;background:var(--green);animation:blink 1s step-end infinite;vertical-align:text-bottom;margin-left:2px;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+@keyframes fi{to{opacity:1}}
+@keyframes si{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="t-header">
     <div class="dots"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div>
-    <div class="t-title">root@kali:~/linux-quiz — bash</div>
+    <div class="t-title">root@kali:~/kiberhavfsizlik-quiz</div>
   </div>
   <div class="t-body">
-
-    <!-- BOOT -->
     <div id="boot-screen">
-      <pre class="ascii-art">  _     _                  ___        _
- | |   (_)_ __  _   ___  / _ \ _   _(_)____
- | |   | | '_ \| | | \ \/ / | | | | | |_  /
- | |___| | | | | |_| |>  <| |_| | |_| |/ /
- |_____|_|_| |_|\__,_/_/\_\\___|\__,_/___| </pre>
+      <pre class="ascii-art">  ██╗  ██╗██╗██████╗ ███████╗██████╗
+  ██║ ██╔╝██║██╔══██╗██╔════╝██╔══██╗
+  █████╔╝ ██║██████╔╝█████╗  ██████╔╝
+  ██╔═██╗ ██║██╔══██╗██╔══╝  ██╔══██╗
+  ██║  ██╗██║██████╔╝███████╗██║  ██║
+  ╚═╝  ╚═╝╚═╝╚═════╝ ╚══════╝╚═╝  ╚═╝</pre>
       <div class="boot-text">
-        <div class="bl">[<span class="ok">  OK  </span>] LinuxQuiz OS v3.1 — loading...</div>
-        <div class="bl">[<span class="ok">  OK  </span>] questions.db: <span class="gc">112 ta savol yuklandi</span></div>
-        <div class="bl">[<span class="ok">  OK  </span>] Mavzular: <span class="gc">Linux · SSH · Tizim · Tarmoq · Kriptografiya · Xavfsizlik</span></div>
-        <div class="bl">[<span class="ok">  OK  </span>] Yangi: <span class="gc">Natijalar tahlili va savol ko'rib chiqish rejimi faollashtirildi</span></div>
-        <div class="bl">[<span class="wa"> WARN </span>] FULL rejimda barcha 112 ta savol ketma-ket chiqadi</div>
+        <div class="bl">[<span class="ok">  OK  </span>] KiberQuiz OS v4.0 — loading...</div>
+        <div class="bl">[<span class="ok">  OK  </span>] questions.db: <span class="gc">248 ta savol yuklandi</span></div>
+        <div class="bl">[<span class="ok">  OK  </span>] Mavzular: <span class="gc">Linux · SSH · Tarmoq · Kriptografiya · Xavfsizlik · Axborot tizimi</span></div>
+        <div class="bl">[<span class="ok">  OK  </span>] Bloklar: <span class="gc">13 ta blok × 20 ta savol</span></div>
+        <div class="bl">[<span class="wa"> WARN </span>] TO'LIQ rejimda barcha 248 ta savol random tartibda chiqadi</div>
         <div class="bl">[<span class="ok">  OK  </span>] Tayyor. Xush kelibsiz, <span class="gc">root</span><span class="cursor"></span></div>
         <div class="bl">&nbsp;</div>
-        <div class="bl"><span class="gc">$</span> linux-quiz --select-mode</div>
+        <div class="bl"><span class="gc">$</span> kiberhavfsizlik-quiz --select-mode</div>
       </div>
-      <div class="mode-btns">
-        <button class="mode-btn" onclick="startQuiz(20)">
-          <div class="mode-btn-count">20</div>
-          <div class="mode-btn-title">▶ RANDOM TEST</div>
-          <div class="mode-btn-desc">112 ta savoldan tasodifiy<br>20 tasi tanlanadi.<br>Har safar boshqacha!</div>
+      <div class="mode-section">
+        <div class="section-label">// MAXSUS REJIMLAR</div>
+        <div class="special-btns">
+          <button class="mode-btn" onclick="startRandom()">
+            <div class="mode-btn-count">20</div>
+            <div class="mode-btn-title">&#9654; RANDOM TEST</div>
+            <div class="mode-btn-desc">248 ta savoldan tasodifiy<br>20 tasi tanlanadi.<br>Har safar boshqacha!</div>
+          </button>
+          <button class="mode-btn all-mode" onclick="startFull()">
+            <div class="mode-btn-count">248</div>
+            <div class="mode-btn-title">&#9654;&#9654; TO'LIQ TEST</div>
+            <div class="mode-btn-desc">Barcha 248 ta savol<br>random tartibda chiqadi.<br>Hech birini o'tkazmasdan!</div>
+          </button>
+        </div>
+        <div class="section-label" style="margin-top:20px;">// BLOKLARGA BO'LINGAN TESTLAR (13 BLOK × 20)</div>
+        <div class="group-btns">
+        <button class="group-btn" onclick="startGroup(0,20)">
+          <div class="mode-btn-count">1–20</div>
+          <div class="mode-btn-title">&#9658; BLOK 1</div>
+          <div class="mode-btn-desc">1-savoldan 20-savolgacha<br>20 ta savol, random tartibda</div>
         </button>
-        <button class="mode-btn all-mode" onclick="startQuiz(112)">
-          <div class="mode-btn-count">112</div>
-          <div class="mode-btn-title">▶▶ TO'LIQ TEST</div>
-          <div class="mode-btn-desc">Fayldagi barcha 112 ta<br>savol ketma-ket chiqadi.<br>Hech birini o'tkazmasdan!</div>
+        <button class="group-btn group-btn-cyan" onclick="startGroup(20,40)">
+          <div class="mode-btn-count">21–40</div>
+          <div class="mode-btn-title">&#9658; BLOK 2</div>
+          <div class="mode-btn-desc">21-savoldan 40-savolgacha<br>20 ta savol, random tartibda</div>
         </button>
+        <button class="group-btn group-btn-amber" onclick="startGroup(40,60)">
+          <div class="mode-btn-count">41–60</div>
+          <div class="mode-btn-title">&#9658; BLOK 3</div>
+          <div class="mode-btn-desc">41-savoldan 60-savolgacha<br>20 ta savol, random tartibda</div>
+        </button>
+        <button class="group-btn" onclick="startGroup(60,80)">
+          <div class="mode-btn-count">61–80</div>
+          <div class="mode-btn-title">&#9658; BLOK 4</div>
+          <div class="mode-btn-desc">61-savoldan 80-savolgacha<br>20 ta savol, random tartibda</div>
+        </button>
+        <button class="group-btn group-btn-cyan" onclick="startGroup(80,100)">
+          <div class="mode-btn-count">81–100</div>
+          <div class="mode-btn-title">&#9658; BLOK 5</div>
+          <div class="mode-btn-desc">81-savoldan 100-savolgacha<br>20 ta savol, random tartibda</div>
+        </button>
+        <button class="group-btn group-btn-amber" onclick="startGroup(100,120)">
+          <div class="mode-btn-count">101–120</div>
+          <div class="mode-btn-title">&#9658; BLOK 6</div>
+          <div class="mode-btn-desc">101-savoldan 120-savolgacha<br>20 ta savol, random tartibda</div>
+        </button>
+        <button class="group-btn" onclick="startGroup(120,140)">
+          <div class="mode-btn-count">121–140</div>
+          <div class="mode-btn-title">&#9658; BLOK 7</div>
+          <div class="mode-btn-desc">121-savoldan 140-savolgacha<br>20 ta savol, random tartibda</div>
+        </button>
+        <button class="group-btn group-btn-cyan" onclick="startGroup(140,160)">
+          <div class="mode-btn-count">141–160</div>
+          <div class="mode-btn-title">&#9658; BLOK 8</div>
+          <div class="mode-btn-desc">141-savoldan 160-savolgacha<br>20 ta savol, random tartibda</div>
+        </button>
+        <button class="group-btn group-btn-amber" onclick="startGroup(160,180)">
+          <div class="mode-btn-count">161–180</div>
+          <div class="mode-btn-title">&#9658; BLOK 9</div>
+          <div class="mode-btn-desc">161-savoldan 180-savolgacha<br>20 ta savol, random tartibda</div>
+        </button>
+        <button class="group-btn" onclick="startGroup(180,200)">
+          <div class="mode-btn-count">181–200</div>
+          <div class="mode-btn-title">&#9658; BLOK 10</div>
+          <div class="mode-btn-desc">181-savoldan 200-savolgacha<br>20 ta savol, random tartibda</div>
+        </button>
+        <button class="group-btn group-btn-cyan" onclick="startGroup(200,220)">
+          <div class="mode-btn-count">201–220</div>
+          <div class="mode-btn-title">&#9658; BLOK 11</div>
+          <div class="mode-btn-desc">201-savoldan 220-savolgacha<br>20 ta savol, random tartibda</div>
+        </button>
+        <button class="group-btn group-btn-amber" onclick="startGroup(220,240)">
+          <div class="mode-btn-count">221–240</div>
+          <div class="mode-btn-title">&#9658; BLOK 12</div>
+          <div class="mode-btn-desc">221-savoldan 240-savolgacha<br>20 ta savol, random tartibda</div>
+        </button>
+        <button class="group-btn" onclick="startGroup(240,248)">
+          <div class="mode-btn-count">241–248</div>
+          <div class="mode-btn-title">&#9658; BLOK 13</div>
+          <div class="mode-btn-desc">241-savoldan 248-savolgacha<br>8 ta savol, random tartibda</div>
+        </button>
+        </div>
       </div>
     </div>
-
-    <!-- QUIZ -->
     <div id="quiz-screen">
       <div class="quiz-nav">
-        <button class="nav-btn nav-btn-home" onclick="confirmGoHome()">⌂ BOSH MENYU</button>
-        <button class="nav-btn nav-btn-switch" id="switch-mode-btn" onclick="confirmSwitch()">⇄ REJIM O'ZGARTIRISH</button>
+        <button class="nav-btn nav-btn-home" onclick="confirmGoHome()">&#8962; BOSH MENYU</button>
+        <button class="nav-btn nav-btn-switch" id="switch-mode-btn" onclick="confirmSwitch()">&#8644; REJIM</button>
       </div>
       <div class="q-header">
         <div class="prompt"><span class="ph">root@kali</span>:<span class="pd">~/quiz</span>$ <span style="color:#444">./run.sh</span></div>
         <div class="stats">
-          <div class="stat-item">✓ <span id="correct-count">0</span></div>
-          <div class="stat-item">✗ <span id="wrong-count">0</span></div>
+          <div class="stat-item">&#10003; <span id="correct-count">0</span></div>
+          <div class="stat-item">&#10007; <span id="wrong-count">0</span></div>
           <div class="stat-item">SAVOL <span id="q-counter">1/?</span></div>
         </div>
       </div>
@@ -220,10 +248,8 @@
       <div class="q-text" id="q-text"></div>
       <div class="options" id="options"></div>
       <div class="feedback" id="feedback"></div>
-      <button class="next-btn" id="next-btn" onclick="nextQ()">KEYINGISI &nbsp;→</button>
+      <button class="next-btn" id="next-btn" onclick="nextQ()">KEYINGISI &rarr;</button>
     </div>
-
-    <!-- RESULT -->
     <div id="result-screen">
       <div class="res-ascii" id="res-ascii"></div>
       <div class="res-stats">
@@ -236,37 +262,32 @@
       <span class="grade-text" id="grade-text">A+</span>
       <div class="grade-label" id="grade-label">MUKAMMAL</div>
       <div class="action-row">
-        <button class="abtn abtn-review" onclick="openReview()">📋 NATIJALARNI KO'RISH</button>
-        <button class="abtn abtn-restart" onclick="openRestartDialog()">↺ QAYTA ISHLASH</button>
-        <button class="abtn abtn-home" onclick="goHome()">⌂ BOSH MENYU</button>
+        <button class="abtn abtn-review" onclick="openReview()">&#128203; NATIJALARNI KO'RISH</button>
+        <button class="abtn abtn-restart" onclick="openRestartDialog()">&#8635; QAYTA ISHLASH</button>
+        <button class="abtn abtn-home" onclick="goHome()">&#8962; BOSH MENYU</button>
       </div>
     </div>
-
-    <!-- REVIEW -->
     <div id="review-screen">
       <div class="review-header">
         <div class="review-title">// NATIJALAR TAHLILI</div>
         <div class="review-legend">
-          <span class="leg-ok">✓ To'g'ri</span>
-          <span class="leg-err">✗ Xato</span>
+          <span class="leg-ok">&#10003; To'g'ri</span>
+          <span class="leg-err">&#10007; Xato</span>
         </div>
       </div>
       <div class="review-list" id="review-list"></div>
       <div class="review-back-row">
-        <button class="abtn abtn-review" onclick="backToResult()">← NATIJAGA QAYTISH</button>
-        <button class="abtn abtn-restart" onclick="openRestartDialog()">↺ QAYTA ISHLASH</button>
-        <button class="abtn abtn-home" onclick="goHome()">⌂ BOSH MENYU</button>
+        <button class="abtn abtn-review" onclick="backToResult()">&larr; NATIJAGA QAYTISH</button>
+        <button class="abtn abtn-restart" onclick="openRestartDialog()">&#8635; QAYTA ISHLASH</button>
+        <button class="abtn abtn-home" onclick="goHome()">&#8962; BOSH MENYU</button>
       </div>
     </div>
-
   </div>
   <div class="t-footer">
     <span id="footer-s">SYSTEM READY</span>
-    <span>LinuxQuiz v3.1 &nbsp;|&nbsp; UTF-8 &nbsp;|&nbsp; 112 savol</span>
+    <span>KiberQuiz v4.0 | UTF-8 | 248 savol | 13 blok</span>
   </div>
 </div>
-
-<!-- RESTART DIALOG -->
 <div class="dialog-overlay" id="restart-dialog">
   <div class="dialog-box">
     <div class="dialog-title">// QAYTA ISHLASH</div>
@@ -274,35 +295,30 @@
     <div class="dialog-btns" id="dialog-btns"></div>
   </div>
 </div>
-
-<!-- SWITCH MODE DIALOG -->
 <div class="dialog-overlay" id="switch-dialog">
   <div class="dialog-box">
     <div class="dialog-title">// REJIM O'ZGARTIRISH</div>
-    <div class="dialog-sub" id="switch-dialog-sub">Joriy test bekor qilinadi. Qaysi rejimga o'tmoqchisiz?</div>
+    <div class="dialog-sub" id="switch-dialog-sub">Joriy test bekor qilinadi.</div>
     <div class="dialog-btns" id="switch-dialog-btns"></div>
   </div>
 </div>
-
-<!-- HOME CONFIRM DIALOG -->
 <div class="dialog-overlay" id="home-dialog">
   <div class="dialog-box">
     <div class="dialog-title">// BOSH MENYUGA QAYTISH</div>
     <div class="dialog-sub">Joriy test bekor qilinadi. Davom etasizmi?</div>
     <div class="dialog-btns">
       <button class="dbtn" onclick="closeAllDialogs();goHome();">
-        <span class="dbtn-icon">⌂</span>
-        <div><div style="font-size:12px;color:var(--green);letter-spacing:1px">HA, BOSH MENYUGA</div><div style="font-size:10px;color:#444;margin-top:3px">Joriy natijalar saqlanmaydi</div></div>
+        <span class="dbtn-icon">&#8962;</span>
+        <div><div style="font-size:12px;color:var(--green)">HA, BOSH MENYUGA</div><div style="font-size:10px;color:#444">Joriy natijalar saqlanmaydi</div></div>
       </button>
       <div class="dialog-sep"></div>
       <button class="dbtn cancel-btn" onclick="closeAllDialogs()">
-        <span class="dbtn-icon" style="color:#333">✕</span>
-        <span style="font-size:11px;color:#444;letter-spacing:2px">TESTNI DAVOM ETTIRISH</span>
+        <span class="dbtn-icon" style="color:#333">&#10005;</span>
+        <span style="font-size:11px;color:#444">TESTNI DAVOM ETTIRISH</span>
       </button>
     </div>
   </div>
 </div>
-
 <script>
 const ALL=[
   {q:"Linux nima?",opts:["Dastur","Operatsion tizim","O'yin","Brauzer"],ans:1,cat:"LINUX ASOSLARI"},
@@ -418,86 +434,207 @@ const ALL=[
   {q:"Kompyuter virusi nima qiladi?",opts:["Fayl hajmini oshiradi","Fayllarga zarar yetkazadi va o'zini qo'shadi","Internet tezligini oshiradi","Diskni tozalaydi"],ans:1,cat:"XAVFSIZLIK"},
   {q:"Backup qilishning asosiy foydasi nima?",opts:["Tizimni tezlashtirish","Ma'lumot yo'qolsa tiklash imkonini beradi","Internetni tezlashtiradi","Parolni kuchaytiradi"],ans:1,cat:"XAVFSIZLIK"},
   {q:"HTTPS protokoli HTTP'dan nimasi bilan farq qiladi?",opts:["Tezroq ishlaydi","Ma'lumotni shifrlaydi","Fayl yaratadi","Diskni boshqaradi"],ans:1,cat:"TARMOQ"},
+  {q:"Linux tizimida buyruqlar nimani ta’minlaydi?",opts:["Tizimni boshqarishni","Dasturlarni boshqarishni","Joriy fayl katalogini","root huquqini"],ans:0,cat:"LINUX ASOSLARI"},
+  {q:"Linuxda foydalanuvchi qo‘shish buyrug‘i qaysi?",opts:["add","useradd","newuser","createuser"],ans:1,cat:"LINUX ASOSLARI"},
+  {q:"Linuxda foydalanuvchini o‘chirish komandasi?",opts:["adduser","deluser","newuser","touch"],ans:1,cat:"LINUX ASOSLARI"},
+  {q:"Linuxda xizmatlarni boshqarish buyrug‘i?",opts:["service","systemctl","control","start"],ans:1,cat:"LINUX ASOSLARI"},
+  {q:"chmod buyrug‘i nima uchun ishlatiladi?",opts:["Fayllarni butunlay o‘chirish","Ruxsatlarni o‘zgartirish","Fayl yaratish","Ko‘rsatish"],ans:1,cat:"LINUX ASOSLARI"},
+  {q:"top buyrug‘i nima qiladi?",opts:["Ruxsatlarni o‘zgartirish","Tizim jarayonlarini ko‘rsatadi","Papkani to‘liq o‘chirish","Ko‘chiradi"],ans:1,cat:"LINUX ASOSLARI"},
+  {q:"ps buyrug‘i nima uchun ishlatiladi?",opts:["Joriy fayl ma’lumotlarini ochish","Jarayonlarni ko‘rsatish","O‘chirish","Yaratish"],ans:1,cat:"LINUX ASOSLARI"},
+  {q:"Disk hajmini ko‘rish buyrug‘i qaysi?",opts:["size","df","disk","show"],ans:1,cat:"LINUX ASOSLARI"},
+  {q:"Papka hajmini ko‘rish buyrug‘i qaysi?",opts:["du","df","size","dir"],ans:0,cat:"LINUX ASOSLARI"},
+  {q:"Linuxda yordam olish buyrug‘i qaysi?",opts:["help","man","info","guide"],ans:0,cat:"LINUX ASOSLARI"},
+  {q:"echo buyrug‘i nima qiladi?",opts:["Fayl o‘chiradi","Matn chiqaradi","Ko‘chiradi","Yaratadi"],ans:1,cat:"LINUX ASOSLARI"},
+  {q:"history buyrug‘i nima qiladi?",opts:["Joriy kodlarni saqlash platformasi","Oldingi buyruqlarni ko‘rsatadi","Tarixlarni o‘chiradi","Tarixlardan nusxa oladi"],ans:1,cat:"LINUX ASOSLARI"},
+  {q:"GitHub’dan loyiha yuklash buyrug‘i qaysi?",opts:["download","git clone","copy","fetch"],ans:1,cat:"UMUMIY"},
+  {q:"Phishing odatda qayerda bo‘ladi?",opts:["Email","Printer","Monitor","USB"],ans:0,cat:"XAVFSIZLIK"},
+  {q:"Kuchli parol qanday bo‘ladi?",opts:["123456qwerti","Faqat harf","Harf, son va belgilar","Ism va yil, tug’ilgan kunlar"],ans:2,cat:"XAVFSIZLIK"},
+  {q:"Kiberxavfsizlik tahdidlari turlari bu….",opts:["Tajovuzkor dasturlar , zararli dasturlar","Maxfiy dasturlar, zararli dasturlar","Ijtimoiy dasturlar, tajovuzkor dasturlar","Tarmoqli dasturlar, maxfiy dasturlar"],ans:0,cat:"UMUMIY"},
+  {q:"….. kompyuter tizimiga ruxsatsiz kirishga va uni buzishga yo'naltirilgan dasturlarni toping",opts:["Tajovuzkor dasturlar","Zararli dasturlar","Ijtimoiy dasturlar","Maxfiy dasturlar"],ans:0,cat:"LINUX ASOSLARI"},
+  {q:"……bu ishonchli manbadan keladigan xabar kabi bo'lib soxta elektron xatlarni tarqatishdir.",opts:["Fishing","Control","Defense","Denial"],ans:0,cat:"UMUMIY"},
+  {q:"DOS nima?",opts:["Xizmat ko'rsatishdan to'xtash ya'ni hisoblash tizimiga xaker hujumi","Xizmat ko'rsatishni boshlash ya'ni hisoblash tizimi ishga tushishi","Xizmat ko'rsatish sifatini oshirish ya'ni sifatli hizmat ko'rsatish","Xizmat ko'rsatishni xavfsizligini taminlash ya'ni hisoblash tizimiga xaker hujumi"],ans:0,cat:"XAVFSIZLIK"},
+  {q:"Agar hujum bir vaqtning o'zida ko'p sonly kompiyuterlar tomonidan amalga oshirilsa….",opts:["DDOS hujum","DOS hujum","Glabal hujum","Lakal hujum"],ans:0,cat:"XAVFSIZLIK"},
+  {q:"DDOS bu?",opts:["Distributed Denial of Service","Denial of service","Distributed of service","Distributed Union of service"],ans:0,cat:"XAVFSIZLIK"},
+  {q:"DDOS hujumlarini qo'llashni sabablari to'liq va aniq ko'rsatilgan javobni toping",opts:["Shahsiy adovat, ko'ngil ochish, Garazli raqobat, Shantaj","Shahsiy adovat, ko'ngil ochish, pul ishlash, O'zini ko'rsatish","Ko'ngil ochish, Garazli raqobat, Fayllarni zararlash, Pul ishlash","Garazli raqobat, Shantaj"],ans:0,cat:"LINUX ASOSLARI"},
+  {q:"Kiber hujumlardan himoyalanishga ko'maklashuvchi nechta qoida mavjud",opts:["10 ta","12 ta","15 ta","8 ta"],ans:0,cat:"XAVFSIZLIK"},
+  {q:"Tizim elementlarining o'zaro aloqasi va turg'un munosabatlar yig'indisi bu…",opts:["Struktura","Axborot","Maydon","Axborotli maydon"],ans:0,cat:"UMUMIY"},
+  {q:"Uning shakli va holatidan qat'iy nazar ma'lum vaqt chegarasidagi axborotlar yig'indisi bu….",opts:["Axborot maydoni","Struktura","Murakkab Axborot tizimi","Axborot oqimi"],ans:0,cat:"KRIPTOGRAFIYA"},
+  {q:"Kommunikatsiya kanallari bo'yicha axborot dunyosida harakatchi axborotlar to'plami bu….",opts:["Axborot oqimi","Axborot maydoni","Struktura","Sadda axborot"],ans:0,cat:"AXBOROT TIZIMI"},
+  {q:"Mutaxassislar, axborot resurslari, hujjatlar to'plami va axborot texnologiyalari yig'indisi bu…",opts:["Axborot tizimi","Axborot oqimi","Axborot maydoni","Struktura"],ans:0,cat:"AXBOROT TIZIMI"},
+  {q:"Bir-birini inkor qilmaydigan qoidalarga asoslanadigan elementlardan tashkil topgan tizim bu…",opts:["Sodda axborot tizimi","Murakkab axborot tizimi","Strukturali axborot tizimi","Maydonli axborot tizimi"],ans:0,cat:"UMUMIY"},
+  {q:"Jamiyatda axborotni yig'ish, uzatish saqlash,avtamatik qayta ishlash va tarqatish imkonini beruvchi muhit nima?",opts:["Axborot infrastrukturasi","Murakkab axborot tizim","Sodda axborot tizim","Strukturali axborot"],ans:0,cat:"AXBOROT TIZIMI"},
+  {q:"MAC manzil nima?",opts:["Kompyuter qurilmasi tarmoq manzili","Kompyuter qurilmasining internet manzili","Kompyuter qurilmasining Wfi manzili","Kompyuter qurilmasining Admin manzili"],ans:0,cat:"TARMOQ"},
+  {q:"MAC address uzatmasini toping?",opts:["Media Access control","Media of control","Media of Access","Media of servis"],ans:0,cat:"LINUX ASOSLARI"},
+  {q:"MAC address nima?",opts:["Fizik manzil","Tarmoq manzili","Internet manzil","Pochta manzil"],ans:0,cat:"TARMOQ"},
+  {q:"Kompyuter tarmog'ida aktiv qurilma yoki ularning ba'zi interfeyslariga beriladigan uncial indentifikator nima?",opts:["Ethernet","Internet","TCP","IP"],ans:3,cat:"UMUMIY"},
+  {q:"TCP/IP nechanchi yilda ishlab chiqilgan?",opts:["1970 yil","1975 yil","1982 yil","1969 yil"],ans:3,cat:"TARMOQ"},
+  {q:"TCP/IP ni ishlab chiqishdan maqsad nima?",opts:["Axborotlar almashish imkonini yaratish","Kompyuter xotirasini kengaytirish","Internet tezligini oshirish","Axborotlarni qayta ishlash imkonini oshirish"],ans:0,cat:"TARMOQ"},
+  {q:"Har xil dasturlar o'rtasida m'lumotlarni almashishni amalga oshiruvchi mantiqiy daraja interfeysining kelishuvlari to'plami bu….",opts:["Malumotlarni uzatish protokoli","Malumotlarni qabul qilish protokoli","Malumotlarni qayta ishlash protokoli","Ma'lumotlarni o'chirish protokoli"],ans:0,cat:"UMUMIY"},
+  {q:"Tarmoqqa ulangan kompyuterlar o'rtasida bog'lanishni imkonini beruvchi qoida va harakat toplami nima?",opts:["Tarmoq protokoli","Uzatish protokoli","Qabul qilish protokoli","Chiqarish protokoli"],ans:0,cat:"TARMOQ"},
+  {q:"TCP/IP o'z ichiga nechta darajani qamrab oladi?",opts:["4 ta","2 ta","5 ta","3 ta"],ans:0,cat:"TARMOQ"},
+  {q:"Pochta protokoli keltirilgan qatorni toping?",opts:["A va B","SMTP","FTP","POP3"],ans:1,cat:"LINUX ASOSLARI"},
+  {q:"Elektron pochta xabarlarni uzatish protokoli keltirilgan qatorni toping?",opts:["SMTP","FTP","OSI","POP3"],ans:0,cat:"LINUX ASOSLARI"},
+  {q:"HTTP qanday protokol?",opts:["Gipermatnli axborotlarni almashish","Elektron pochta xabarlarni uzatish","Fayllarni uzatish","To'g'ri javob yo'q"],ans:0,cat:"TARMOQ"},
+  {q:"Fayllarni uzatish protokolini ko'rsating?",opts:["FTP","HTTP","OSI","SMTP"],ans:0,cat:"TARMOQ"},
+  {q:"Ma'lumotlarni uzatishni boshqaruvchi protokol qaysi?",opts:["TCP","HTTP","IP","DNS"],ans:0,cat:"TARMOQ"},
+  {q:"IP ning uzaytmasini toping?",opts:["Internet protokol","Internet system","Transmission protokol","Internet open"],ans:0,cat:"LINUX ASOSLARI"},
+  {q:"DNS nima?",opts:["Nomlarning domen tizimi","Nomlarning adressi","Ma'lumotlarni uzatish","to'g'ri javob yo'q"],ans:0,cat:"TARMOQ"},
+  {q:"Marshurtlar haqidagi axborotlarni uzatish protokolini aniqlang",opts:["RIP","DNS","IGP","EGP"],ans:0,cat:"TARMOQ"},
+  {q:"O S P F nima?",opts:["Eng qisqa yo'lni birinchi bo'lib och","Adressga eng ma'qul yo'l","Ma'lumotlarni uzatish","Nomlarning domeni"],ans:0,cat:"UMUMIY"},
+  {q:"IGP nima",opts:["Mashurtlarning ichki protokoli","Mashurtlarning tashqi protokoli","Mashurtlarning qisqa yo'li","Mashurtlar haqidagi axborot"],ans:0,cat:"TARMOQ"},
+  {q:"Marshurtlarning tashqi protokoli ko'rsatilgan qatorni ko'rsating",opts:["EGP","IGP","BGP","RIP"],ans:0,cat:"TARMOQ"},
+  {q:"Chegara mashurtizatorlar protokolini toping",opts:["BGP","IGP","EGP","RID"],ans:0,cat:"LINUX ASOSLARI"},
+  {q:"Kriptologiya so'zi qaysi tildan olingan?",opts:["Lotin tili","Grek tili","Fors tili","Arab tili"],ans:1,cat:"KRIPTOGRAFIYA"},
+  {q:".Kriptologiya lotinchda qanday ma'noni anglatadi.",opts:["Yashirin so'z","Kalit so'z","Avtanom so'z","To'g'ri javob yo'q"],ans:0,cat:"KRIPTOGRAFIYA"},
+  {q:"Kodlar yoki Shifrlarni qo'llagan holda (ochiq) dastlabki axborotlarni maxfiylashtirish nima deyiladi?",opts:["Kriptografiya","Kriptoanaliz","Kriptos","Shifrlash"],ans:0,cat:"KRIPTOGRAFIYA"},
+  {q:"Kriptoanaliz nima?",opts:["Kod yoki shifrni oshkor qilish","Kod yoki shifrni yashirish","So'zlarni shifrlash","B va C"],ans:0,cat:"KRIPTOGRAFIYA"},
+  {q:"Ochiq matnlarni kriptogrammaga o'zgartirish nima deyiladi?",opts:["Shifr","Mashurt","Kriptoanaliz","To'g'ri javob yo'q"],ans:0,cat:"KRIPTOGRAFIYA"},
+  {q:"Kalit bu?",opts:["Dastlabki matnnni yashiringan shaklga o'zgartirish algoritmi","Yashiringan matnni dastlabki matnga ozgartirish algoritmi","Dastlabki matnni takroran berish algoritmi","Yashiringan matnni o'chirish algoritmi"],ans:0,cat:"KRIPTOGRAFIYA"},
+  {q:"Dastlabki shifrlar qayerlarda qo'llanilgan?",opts:["Barcha javob to'g'ri","Yunoniston,Misr","Gretsiya,Xitoy","Rim, Sporta"],ans:0,cat:"KRIPTOGRAFIYA"},
+  {q:"Kriptologiyaning rivojlanishi nechta davrga bo'linadi?",opts:["3 ta","2 ta","4 ta","5 ta"],ans:0,cat:"KRIPTOGRAFIYA"},
+  {q:"Xatlarni qo'lda shifrlash usuli qaysi yillarga to'g'ri keladi?",opts:["1949-yilgacha","1959-yilgacha","1947-yilgacha","1969-yilgacha"],ans:0,cat:"KRIPTOGRAFIYA"},
+  {q:"…… bu klassik kriptologiya davri",opts:["1949-1976-yillar","1959-1976-yillar","1948-1975-yillar","1939-1966-yillar"],ans:0,cat:"KRIPTOGRAFIYA"},
+  {q:"1949-1976-yillar kriptologiya rivojlanishining qaysi davriga to'g'ri keladi?",opts:["2 davri","1 davri","3 davri","4 davri"],ans:1,cat:"KRIPTOGRAFIYA"},
+  {q:"Simmetrik shifrlash deb nimada aytiladi?",opts:["Shifrlash va deshifrlash uchun kalit bitta","Shifrlash va deshifrlash uchun kalit ikkita","Shifrlash va deshifrlash uchun kalit uchta","to'g'ri javob yo'q"],ans:0,cat:"KRIPTOGRAFIYA"},
+  {q:"Kriptologiyada yagona maxfiy axborot kalit yordamida ham shifrlanadi, ham deshifrlanadi bu qaysi davrga to'g'ri keladi.",opts:["2 davri","1 davri","4 davri","A va B"],ans:0,cat:"KRIPTOGRAFIYA"},
+  {q:"Asimmetrik shifrlash to'g'ri keltirilgan qatorni ko'rsating?",opts:["to'g'ri javob yo'q","k1=k2","k1<k2","k1>k2"],ans:0,cat:"KRIPTOGRAFIYA"},
+  {q:"Kriptologiya rivojlanishining 3 davri qaysi yillarga to'g'ri keladi?",opts:["1976-yildan hozirgacha","1977-yildan hozirgacha","1949-1976-yillar","1959-1976-yillar"],ans:0,cat:"KRIPTOGRAFIYA"},
+  {q:"Shifrlash jarayoniga teskari jarayon bo'lib shifrdagi ma'lum qoidalar asosida shifrlangan xabarni dastlabki holatga keltirish qanday jarayon deyiladi?",opts:["Deshifrlash","Shifrlash","Nusxalash","to'g'ri javob yo'q"],ans:0,cat:"KRIPTOGRAFIYA"},
+  {q:"g(B)=A bu qanday sxema?",opts:["Deshifrlash","Shifrlash","Nusxalash","Simmetrik shifrlash"],ans:0,cat:"UMUMIY"},
+  {q:"Shifrlash sxemasini ko'rsating",opts:["f(A)=B","g(B)=A","f(A)=B/2","Y=k(X)"],ans:0,cat:"KRIPTOGRAFIYA"},
+  {q:"DES nima?",opts:["Simmetrik shifrlash algoritmi","Asimmetrik shifrlash algoritmi","Shifrlash algoritmi","to'g'ri javob yo'q"],ans:0,cat:"UMUMIY"},
+  {q:"Simmetrik shifrlash algoritmini qaysi firma ishlab chiqqan.",opts:["IBM","Windovs","NOD32","UNIX"],ans:0,cat:"KRIPTOGRAFIYA"},
+  {q:"DES algoritmini davomchisi nima?",opts:["3DES","AES","RID","2DES"],ans:0,cat:"UMUMIY"},
+  {q:"DESning blok o'lchami qancha?",opts:["64-bit","128-bit","32-bit","16-bit"],ans:0,cat:"UMUMIY"},
+  {q:"Simmetrik blokli shifrlash algoritmi blok o'lchami qaysi?",opts:["128-192-256 bit","64-128-256 bit","32-64-128 bit","128-196-256 bit"],ans:0,cat:"KRIPTOGRAFIYA"},
+  {q:"Blowfish nima?",opts:["Kriptrografik algoritm","Simmetrik bloklash","Assimetrik shifrlash","to'g'ri javob yo'q"],ans:0,cat:"UMUMIY"},
+  {q:"Blowfish nechanchi yil ishlab chiqilgan?",opts:["1993 yil","1992 yil","1994 yil","1991 yil"],ans:0,cat:"UMUMIY"},
+  {q:"Axborot ro'yxatdan o'tmagan shaxsga faqat zarur paytda murojati ruxsat etilishi shart bu printsip nima?",opts:["Ruxsatlilik","Butunlik","Maxfiylik","barchasi to'g'ri"],ans:0,cat:"TARMOQ"},
+  {q:"Ochiq kalit bu?",opts:["Hammaga ma'lum bo'lgan kalit bo'lib, shifrlash algoritmining maxfiy qismi emas","Hammaga ma'lum bo'lmagan kalit","Hammaga ma'lum bo'lgan kalit bo'lib, shifrlash algoritmining maxfiy qismi","Hammaga ma'lum bo'lmagan kalit bo'lib, shifrlash algoritmining maxfiy qismi"],ans:0,cat:"KRIPTOGRAFIYA"},
+  {q:"Yopiq kalit bu..?",opts:["Algartmning bir qismi bo'lib,maxfiy ma'lumotlar saqlanadi","Hammaga ma'lum bo'lgan kalit bo'lib, shifrlash algoritmining maxfiy qismi","Hammaga ma'lum bo'lmagan kalit bo'lib, shifrlash algoritmining maxfiy qismi emas","Algartmning bir qismi bo'lib,maxfiy bo'lmagan ma'lumotlar saqlanadi"],ans:0,cat:"KRIPTOGRAFIYA"},
+  {q:"RSA kriptotizimi nimalar ucun dastlabki standart hisoblanadi?",opts:["Shifrlash va Elektron imzo","Shifrlash","Elektron imzo","Yopiq kalit"],ans:0,cat:"KRIPTOGRAFIYA"},
+  {q:"Axborot tizimlari nechta turga bo'linadi?",opts:["2 ta","3 ta","5 ta","4 ta"],ans:0,cat:"AXBOROT TIZIMI"},
+  {q:"Murakkab axborot tizimi nima?",opts:["Har xil qoidalarga asoslanadigan elementlardan tashkil topgan tizimdir","Bir xil qoidalarga asoslanadigan elementlardan tashkil topgan tizimdir","Har xil qoidalarga asoslanadigan maxfiy elementlardan tashkil topgan tizimdir","to'g'ri javob yo'q"],ans:0,cat:"AXBOROT TIZIMI"},
+  {q:"Identifikatsiya bu?",opts:["Subyekt va obyektlarga murojaat qilish","Ma'lumotlarni fizik himoyalash","Ma'lumotlarni electron shaklda uzatish","Ma'lumotlarni parollash"],ans:0,cat:"UMUMIY"},
+  {q:"Murojaat qilishning idenfikatsiya vositasi bo'lib murojat qilishda subyekt va obyektning belgisini taqdim etish nima deyiladi?",opts:["Identifikator","Blowfish","Shifrlash","Avtorizatsiya"],ans:0,cat:"UMUMIY"},
+  {q:"Elektron shaklda uzatiladigan ma'lumotlarning to'g'riligini yoki haqiqiyligini tasdiqlash jarayoni nima deyiladi?",opts:["Autentifikatsiya","Blowfish","Shifrlash","Avtorizatsiya"],ans:0,cat:"KRIPTOGRAFIYA"},
+  {q:"Autentifikatsiya vositasi bo'lib foydalanuvchi va jarayonning alohida belgisini taqdim etish nima deyiladi?",opts:["Autentifikator","Idenfikator","Shifrlash","Avtorizatsiya"],ans:0,cat:"UMUMIY"},
+  {q:"Autentifikatsiya protsedurasidan o'tgandan so'ng tizimning resurslariga murojaat qilish uchun subyektga ma'lum huquqlarni berish protsedurasi nima?",opts:["Avtorizatsiya","Identifikator","Audentifikator","Shifrlash"],ans:0,cat:"UMUMIY"},
+  {q:"IT mutaxasislari disklar bilan ishlashda nechta asosiy muammoga duch kelishadi?",opts:["2 ta","3 ta","4 ta","5 ta"],ans:0,cat:"KRIPTOGRAFIYA"},
+  {q:"Ma'lumotlarni virtual saqlash texnologiyasi bo'lib bir nechta qattiq disklarni yagona mantiqiy elementga birlashtirish nima deyiladi?",opts:["RAID","IT","SSD","TCP"],ans:0,cat:"UMUMIY"},
+  {q:"AQSHda axborotlarni shifrlashda qaysi standart ishlatiladi?",opts:["DES","ASC","HTTP","IT"],ans:0,cat:"KRIPTOGRAFIYA"},
+  {q:"Shifrlangan matndan maxfiy kalitni bilmay turib ochiq matnni olish va tiklash nima deyiladi",opts:["Kriptotahlil","Avtorizatsiya","Parity","Identifikator"],ans:0,cat:"KRIPTOGRAFIYA"},
+  {q:"Foydalanuvchining tarmoqdagi harakatini uning resurslardan foydalanishga urinishlarini qayt etish nima deyiladi?",opts:["Ma'murlash","Kriptotahlil","Avtorizatsiya","Parity"],ans:0,cat:"TARMOQ"},
+  {q:"ISO nima?",opts:["Standartlashtirish bo'yicha xalqaro tashkilotdir","Xakkerlarni nazorat qiluvchi tashkilot","Kiberxavfsizlikni taminlovchi tashkilot","to'g'ri javob yo'q"],ans:0,cat:"UMUMIY"},
+  {q:"ICMP nima?",opts:["Internet orqali xabar yozish protokoli","Ma'lumotlar bilan ishlash protokoli","Standartlashtirish protokoli","Ma'lumotlar kiritish protokoli"],ans:0,cat:"UMUMIY"},
+  {q:"Tarmoq kompyuterlariga ulanish va ma'lumot almashish imkonini beradigan qoidalar va texnik protseduralar nima deyiladi?",opts:["Tarmoq Protokoli","Baza Protokoli","Lokal tarmoq","Internet tarmog'i"],ans:0,cat:"TARMOQ"},
+  {q:"Ba'zi aloqalarni amalga oshirishni tartibga soluvchi qoidalar va protseduralar to'plami nima?",opts:["Protokol","Parol","Prosedura","Ma'murlash"],ans:0,cat:"UMUMIY"},
+  {q:"OSI Network Model nima?",opts:["Tarmoq aloqalari va tarmoq protokollarini ishlab chiqish uchun mavhum model","Ba'zi aloqalarni amalga oshirishni tartibga soluvchi qoidalar va protseduralar to'plami","Tarmoq kompyuterlariga ulanish va ma'lumot almashish imkonini beradigan qoidalar","to'g'ri javob yo'q"],ans:0,cat:"UMUMIY"},
+  {q:"Jahon Internet tarmog'i nechanchi yil vujudga kelgan?",opts:["1992-yil","1991-yil","1994-yil","1993-yil"],ans:0,cat:"UMUMIY"},
+  {q:"WWW ning ma'nosi nima?",opts:["World Wide Web","Wor Wid Web","Word Wide Web","to'g'ri javob yo'q"],ans:0,cat:"UMUMIY"},
+  {q:"WWW ni kim yaratgan?",opts:["Tim Bernars","Maykl Oven","Tim Bekker","Stiv Job"],ans:0,cat:"UMUMIY"},
+  {q:"WEB hujumlar qatorini toping?",opts:["barcha javoblar to'g'ri","DOS","DDOS","Fishing"],ans:0,cat:"LINUX ASOSLARI"},
+  {q:"Kiberjinoyatchilik nima?",opts:["Texnologik jinoyat","Fiziologik jinoyat","Texnik jinoyat","Shaxsiy jinoyat"],ans:0,cat:"UMUMIY"},
+  {q:"Tarmoq hujumlariga qaysilar kiradi?",opts:["Sniffer","DOS","DDOS","Phishing"],ans:0,cat:"TARMOQ"},
+  {q:"Oliy o'quv yurtlari tarmog'ining domen belgisini aniqlang?",opts:["edu","com","gov","net"],ans:0,cat:"UMUMIY"},
+  {q:"Tijorat tashkilotlari tarmog'ining domen belgisini aniqlang?",opts:["com","edu","net","gov"],ans:0,cat:"UMUMIY"},
+  {q:"Hukumat tashkilotlari tarmog'ining domen belgisini aniqlang?",opts:["gov","net","org","int"],ans:0,cat:"UMUMIY"},
+  {q:"Ijtimoiy injineriya bu…",opts:["g'arazli foydalanuvchilar tomonidan boshqa foydalanuvchilarning maxfiy ma'lumotlarini ochishga qaratilgan taktika.","zararli dasturiy taminot turi hisoblanib kompyuterdagi fayllarga murojatni berkitish orqali pul talab qilioshga qaratilgan.","kompyuterga ruxsatsiz kirishga yoki kompyuterga tizimini zararlashga qaratilgan","ishonchli manbadan kelayotgan xatlar kabi ko'rinuvchi sohta electron xatlarni tarqatish."],ans:0,cat:"UMUMIY"},
+  {q:"Fishing bu…",opts:["ishonchli manbadan kelayotgan xatlar kabi ko'rinuvchi sohta electron xatlarni tarqatish.","kompyuterga ruxsatsiz kirishga yoki kompyuterga tizimini zararlashga qaratilgan","g'arazli foydalanuvchilar tomonidan boshqa foydalanuvchilarning maxfiy ma'lumotlarini ochishga qaratilgan taktika.","zararli dasturiy taminot turi hisoblanib kompyuterdagi fayllarga murojatni berkitish orqali pul talab qilioshga qaratilgan."],ans:0,cat:"XAVFSIZLIK"},
+  {q:"Eng keng tarqalgan kiber hujum turi qaysi?",opts:["fishing dasturi.","Tajovuz qiluvchi dasturlar.","zararli dasturlar.","ijtimoiy injineriya."],ans:0,cat:"XAVFSIZLIK"},
+  {q:"Agar xujum bir vaqtning o'zida ko'p sonli kompyuterlar tomonidan uyushtirilsa bu qanday xujum hisoblanadi?",opts:["DDOS","DOS","DDOSva DOS","TCP"],ans:0,cat:"UMUMIY"},
+  {q:"Tanlangan tugunlarni hujumga moyil bo'lib kiberjinoyatchi kompyuterlar ustudan administrator huquqini olgach ularga qanday dasturlar o'rnatadi?",opts:["Troyan dasturlar","Tajovuz qiluvchi dasturlar","Zararli dasturlar","Fishing dasturlar"],ans:0,cat:"XAVFSIZLIK"},
+  {q:"Troyan dasturlari qanday rejimlarda ishlaydi?",opts:["fon rejimida","oddiy rejimda","murakkab rejimda","fon va oddiy rejimlarida"],ans:0,cat:"UMUMIY"},
+  {q:"Dastlabki kiberhujum qachon amalga oshirilgan?",opts:["1982-yil","1985-yil","1988-yil","1992-yil"],ans:0,cat:"XAVFSIZLIK"},
+  {q:"Yo'l harakati tashkilotini 2ta injineri shahar svetaforlariga hujumni qchon va qayerda uyushtiradilar?",opts:["2006-yil Losangelesda","2006-yil AQSHda","2015-yil Losangelesda","2015-yil AQSHda"],ans:0,cat:"KRIPTOGRAFIYA"},
+  {q:"Ukrainada milliy elektr tarmoqlari kompyuterlariga kiberhujum qachon uyushtiriladi?",opts:["2015-yil","2006-yil","2007-yil","2005-yil"],ans:0,cat:"TARMOQ"},
+  {q:"Dastlabki Internet inflastrukturasiga bo'lgan hujum nechinchi yilda amalga oshirilgan?",opts:["2007-yil 27-aprelda","2007-yil 18-mart","2006-yil 27-aprel","2006-yil 18-mart"],ans:0,cat:"XAVFSIZLIK"},
+  {q:"\"Oq\" hakerlarni yo'llashdan maqsad?",opts:["xavfsizlik darajasini aniqlab kompaniyaning xavf xatarlarini baholab beradi","tizimdagi xatoliklarni aniqlaydi.","Ichki va tashqi komunikatsiyalarni aniqlaydi","b va c"],ans:0,cat:"UMUMIY"},
+  {q:"Struktura bu…",opts:["tizim elementlari orasidagi aloqasi va turg'un munosabatlar yig'indisidir.","xavfsizlik darajasini aniqlab kompaniyaning xavf xatarlarini baholay olish.","komunikatsiya qarorlari bo'yicha axborot sohasida harakatlanuvchi axborotlar yig'indisi.","axborotning shakliga va holatiga bog'liq bo'lmagan holda yig'indisi"],ans:0,cat:"AXBOROT TIZIMI"},
+  {q:"Axborot tizimlari shartli ravishda nechta turga ajraladi?",opts:["2ta oddiy va murakkab axborot tizimi","3ta sohta, oddiy va qiyin","oddiy","murakkab"],ans:0,cat:"KRIPTOGRAFIYA"},
+  {q:"Oddiy axborot tizim deb qanday tizimga aytiladi?",opts:["bir xil qoidaga asoslangan elementlardan tashkil topgan tizim","har xil qoidalarfa bo'ysunuvchi elementlardan tashkil topgan tizim","axborotning shakliga va holatiga bog'liq bo'lmagan holda yig'indisi","tizim elementlari orasidagi aloqasi va turg'un munosabatlar"],ans:0,cat:"AXBOROT TIZIMI"},
+  {q:"Murakkab axborot tizimi dab qanday tizimga aytiladi?",opts:["har xil qoidalarga bo'ysunuvchi elementlardan tashkil topgan tizim","bir xil qoidaga asoslangan elementlardan tashkil topgan tizim","axborotning shakliga va holatiga bog'liq bo'lmagan holda yig'indisi","tizim elementlari orasidagi aloqasi va turg'un munosabatlar"],ans:0,cat:"AXBOROT TIZIMI"},
+  {q:"Axborot telekomunikatsion inflastruktura - …",opts:["mamlakatda aloqa va telekomunikatsiya vositalari orqali tarmoqda o'zaro bog'langan hududiy taqsimlangan kompaniyalar.","jamiyatda axborotni yig'ish uzatish saqlash avtomatik qayta ishlash va tarqatishni ta'minlovchi muhit.","axborotning shakliga va holatiga bog'liq bo'lmagan holda yig'indisi","tizim elementlari orasidagi aloqasi va turg'un munosabatlar"],ans:0,cat:"AXBOROT TIZIMI"},
+  {q:"Axborot inflastrukturasi - ….",opts:["jamiyatda axborotni yig'ish uzatish saqlash avtomatik qayta ishlash va tarqatishni ta'minlovchi muhit.","mamlakatda aloqa va telekomunikatsiya vositalari orqali tarmoqda o'zaro bog'langan hududiy taqsimlangan kompaniyalar.","axborotning shakliga va holatiga bog'liq bo'lmagan holda yig'indisi","tizim elementlari orasidagi aloqasi va turg'un munosabatlar"],ans:0,cat:"TARMOQ"},
+  {q:"Axborot komunikatsiya texnologiyalaridan foydalanishni o'sish darajasi yer yuzida yiliga nechcha foizni tashkil qiladi?",opts:["5%","10%","8%","6%"],ans:2,cat:"TARMOQ"},
+  {q:"IT inflastrukturada o'rin olgan nechta ko'rsatkich mavjud?",opts:["6ta","5 ta","7ta","10ta"],ans:0,cat:"TARMOQ"},
+  {q:"Linuxda joriy foydalanuvchini ko‘rish buyrug‘i?",opts:["whoami","user","name","idduser"],ans:0,cat:"LINUX ASOSLARI"},
+  {q:"Fayl ichini ko‘rish buyrug‘i qaysi?",opts:["show","cat","open","read"],ans:1,cat:"LINUX ASOSLARI"},
+  {q:"Tarmoqni tekshirish buyrug‘i qaysi?",opts:["ping","check","net","test"],ans:0,cat:"TARMOQ"},
+  {q:"find buyrug‘i nima qiladi?",opts:["Fayl qidiradi","O‘chiradi","Ko‘chiradi","Ochadi"],ans:0,cat:"LINUX ASOSLARI"},
+  {q:"uname nima ko‘rsatadi?",opts:["Fayl konfiguratsiyasi nomi","Tizim ma’lumotlari","Sistema versiyasi","Disk hajmi"],ans:1,cat:"LINUX ASOSLARI"},
+  {q:"Linux xavfsizligining asosiy sababi?",opts:["Boshqa tizimlardan qimmatligi","Ochiq kod va nazorat","Sekin ishlashi","Yopiqligi"],ans:1,cat:"LINUX ASOSLARI"},
+  {q:"Kuchli parol qanday bo‘ladi?",opts:["123456","Faqat ism","Harf=son=belgi","Faqat harf"],ans:2,cat:"XAVFSIZLIK"},
+  {q:"Parol uzunligi qanday bo‘lishi kerak?",opts:["3 ta","5 ta","8 = belgidan","2 ta"],ans:2,cat:"XAVFSIZLIK"},
+  {q:"Parolni tez-tez o‘zgartirish kerakmi?",opts:["Yo‘q","Ha","Kerak emas","Bilmayman"],ans:1,cat:"XAVFSIZLIK"},
+  {q:"Brauzerda parol saqlashning xavfi nima?",opts:["Parol o‘chib ketadi","Virus tushsa parollar ochilishi mumkin","Internet sekinlashadi","Fayllar o‘chadi"],ans:1,cat:"XAVFSIZLIK"},
+  {q:"Backup qilishning foydasi nima?",opts:["Tezlashtirish","Ma’lumot yo‘qolsa tiklash","Internetni tezlatish","Parolni buzishni himoyalash"],ans:1,cat:"XAVFSIZLIK"}
 ];
 
-// ===== STATE =====
-let pool=[], current=0, score=0, wrongC=0, lastMode=20;
-let history=[]; // {q, opts, correctIdx, selectedIdx, isOk}
+let pool=[], current=0, score=0, wrongC=0;
+let lastModeType='random';
+let lastGroupRange=null;
+let history=[];
 
 function shuffle(a){return [...a].sort(()=>Math.random()-0.5);}
-function show(id){['boot-screen','quiz-screen','result-screen','review-screen'].forEach(s=>document.getElementById(s).style.display='none');document.getElementById(id).style.display='block';}
+function show(id){['boot-screen','quiz-screen','result-screen','review-screen'].forEach(function(s){document.getElementById(s).style.display='none';});document.getElementById(id).style.display='block';}
 
-function startQuiz(n, useExistingPool=false){
-  lastMode=n;
-  if(!useExistingPool){
-    pool = n===112 ? [...ALL] : shuffle(ALL).slice(0,20);
-  }
-  current=0; score=0; wrongC=0; history=[];
-  // update switch button label
-  const swBtn=document.getElementById('switch-mode-btn');
-  swBtn.textContent = n===20 ? '⇄ TO\'LIQ TEST (112)' : '⇄ RANDOM TEST (20)';
-  show('quiz-screen');
-  loadQ();
+function startRandom(){lastModeType='random';lastGroupRange=null;pool=shuffle(ALL).slice(0,20);_launch();}
+function startFull(){lastModeType='full';lastGroupRange=null;pool=shuffle([...ALL]);_launch();}
+function startGroup(s,e){lastModeType='group';lastGroupRange={start:s,end:e};pool=shuffle(ALL.slice(s,e));_launch();}
+
+function _launch(){
+  current=0;score=0;wrongC=0;history=[];
+  var swBtn=document.getElementById('switch-mode-btn');
+  swBtn.textContent=lastModeType==='random'?'TOLIQ TEST ga otish':'RANDOM TEST (20) ga otish';
+  show('quiz-screen');loadQ();
 }
 
 function loadQ(){
-  const q=pool[current];
+  var q=pool[current];
   document.getElementById('cat-badge').textContent=q.cat;
-  document.getElementById('q-num').textContent=`// savol_${String(current+1).padStart(3,'0')}`;
+  document.getElementById('q-num').textContent='// savol_'+String(current+1).padStart(3,'0');
   document.getElementById('q-text').textContent=q.q;
-  document.getElementById('q-counter').textContent=`${current+1}/${pool.length}`;
+  document.getElementById('q-counter').textContent=(current+1)+'/'+pool.length;
   document.getElementById('correct-count').textContent=score;
   document.getElementById('wrong-count').textContent=wrongC;
-  const pct=Math.round((current/pool.length)*100);
+  var pct=Math.round((current/pool.length)*100);
   document.getElementById('prog-fill').style.width=pct+'%';
   document.getElementById('prog-pct').textContent=pct+'%';
-  const fb=document.getElementById('feedback');
-  fb.className='feedback'; fb.textContent='';
+  var fb=document.getElementById('feedback');
+  fb.className='feedback';fb.textContent='';
   document.getElementById('next-btn').style.display='none';
-  const cont=document.getElementById('options');
+  var cont=document.getElementById('options');
   cont.innerHTML='';
-  // shuffle options but track original indices
-  const shuffled=shuffle(q.opts.map((text,i)=>({text,orig:i})));
-  shuffled.forEach((opt,idx)=>{
-    const keys=['A','B','C','D'];
-    const btn=document.createElement('button');
+  var shuffled=shuffle(q.opts.map(function(text,i){return {text:text,orig:i};}));
+  shuffled.forEach(function(opt,idx){
+    var keys=['A','B','C','D'];
+    var btn=document.createElement('button');
     btn.className='opt-btn';
-    btn.innerHTML=`<span class="opt-key">[${keys[idx]}]</span> ${opt.text}`;
-    btn.onclick=()=>checkAns(opt.orig,q.ans,btn,cont,shuffled,q);
+    btn.innerHTML='<span class="opt-key">['+keys[idx]+']</span> '+opt.text;
+    (function(o,q2){btn.onclick=function(){checkAns(o.orig,q2.ans,btn,cont,shuffled,q2);};})(opt,q);
     cont.appendChild(btn);
   });
-  document.getElementById('footer-s').textContent=`SAVOL ${current+1}/${pool.length} | ${q.cat}`;
+  document.getElementById('footer-s').textContent='SAVOL '+(current+1)+'/'+pool.length+' | '+q.cat;
 }
 
 function checkAns(sel,correct,btn,cont,shuffled,q){
-  cont.querySelectorAll('.opt-btn').forEach(b=>b.disabled=true);
-  const fb=document.getElementById('feedback');
-  const isOk=sel===correct;
+  cont.querySelectorAll('.opt-btn').forEach(function(b){b.disabled=true;});
+  var fb=document.getElementById('feedback');
+  var isOk=sel===correct;
   if(isOk){
-    btn.classList.add('correct');
-    score++;
-    fb.textContent='[ ✓ ] TO\'G\'RI!';
-    fb.className='feedback fb-ok show';
+    btn.classList.add('correct');score++;
+    fb.textContent="[ OK ] TOG'RI!";fb.className='feedback fb-ok show';
   } else {
-    btn.classList.add('wrong');
-    wrongC++;
-    // to'g'ri javobni yashil qilib ko'rsat
-    const allBtns=cont.querySelectorAll('.opt-btn');
-    allBtns.forEach(b=>{
-      const keySpan=b.querySelector('.opt-key');
-      if(keySpan && b!==btn){
-        // bu tugma to'g'ri javobmi? shuffled orqali tekshiramiz
-        const optText=b.textContent.replace(/^\[.\]\s*/,'').trim();
-        if(q.opts[correct]===optText) b.classList.add('correct');
-      }
+    btn.classList.add('wrong');wrongC++;
+    cont.querySelectorAll('.opt-btn').forEach(function(b){
+      if(b!==btn){var t=b.textContent.replace(/^\[.\]\s*/,'').trim();if(q.opts[correct]===t)b.classList.add('correct');}
     });
-    fb.textContent='[ ✗ ] NOTO\'G\'RI. To\'g\'ri javob yashil bilan belgilandi.';
-    fb.className='feedback fb-err show';
+    fb.textContent="[ !! ] NOTOG'RI. Tog'ri javob yashil bilan belgilandi.";fb.className='feedback fb-err show';
   }
   document.getElementById('correct-count').textContent=score;
   document.getElementById('wrong-count').textContent=wrongC;
-  // save to history
-  history.push({q:q.q,cat:q.cat,opts:q.opts,correctIdx:correct,selectedIdx:sel,isOk});
+  history.push({q:q.q,cat:q.cat,opts:q.opts,correctIdx:correct,selectedIdx:sel,isOk:isOk});
   document.getElementById('next-btn').style.display='inline-block';
 }
 
@@ -505,151 +642,125 @@ function nextQ(){current++;if(current>=pool.length)showResult();else loadQ();}
 
 function showResult(){
   show('result-screen');
-  const total=pool.length, pct=Math.round((score/total)*100);
+  var total=pool.length,pct=Math.round((score/total)*100);
   document.getElementById('res-total').textContent=total;
   document.getElementById('res-correct').textContent=score;
   document.getElementById('res-wrong').textContent=wrongC;
   document.getElementById('res-pct').textContent=pct+'%';
-  setTimeout(()=>{document.getElementById('grade-fill').style.width=pct+'%';},150);
-  let grade,label,ascii,pass;
-  if(pct>=90){grade='A+';label='MUKAMMAL — LINUX GURU!';pass=true;ascii=`  ██████╗ ██████╗ ██╗██╗     ██╗    ██╗███████╗██╗\n  ██╔══██╗██╔══██╗██║██║     ██║    ██║██╔════╝██║\n  ██████╔╝██████╔╝██║██║     ██║ █╗ ██║█████╗  ██║\n  ██╔══██╗██╔══██╗██║██║     ██║███╗██║██╔══╝  ╚═╝\n  ██████╔╝██║  ██║██║███████╗╚███╔███╔╝███████╗██╗\n  ╚═════╝ ╚═╝  ╚═╝╚═╝╚══════╝ ╚══╝╚══╝╚══════╝╚═╝`;}
-  else if(pct>=70){grade='B';label='YAXSHI — Yana mashq qiling!';pass=true;ascii=`  ██████╗     ██████╗ ██████╗  ██████╗  ██╗\n  ██╔══██╗    ██╔════╝ ██╔══██╗██╔═══██╗ ██║\n  ██████╔╝    ██║  ███╗██████╔╝██║   ██║ ██║\n  ██╔══██╗    ██║   ██║██╔══██╗██║   ██║ ╚═╝\n  ██████╔╝    ╚██████╔╝██║  ██║╚██████╔╝ ██╗\n  ╚═════╝      ╚═════╝ ╚═╝  ╚═╝ ╚═════╝  ╚═╝`;}
-  else if(pct>=50){grade='C';label="O'RTA — Ko'proq o'qing!";pass=true;ascii=`   ██████╗\n  ██╔════╝\n  ██║\n  ██║\n  ╚██████╗\n   ╚═════╝`;}
-  else{grade='F';label="QONIQARSIZ — Qayta o'rganing!";pass=false;ascii=`  ███████╗ █████╗ ██╗██╗\n  ██╔════╝██╔══██╗██║██║\n  █████╗  ███████║██║██║\n  ██╔══╝  ██╔══██║██║██║\n  ██║     ██║  ██║██║███████╗\n  ╚═╝     ╚═╝  ╚═╝╚═╝╚══════╝`;}
-  const ae=document.getElementById('res-ascii');
-  ae.textContent=ascii; ae.className='res-ascii '+(pass?'pass':'fail');
-  const ge=document.getElementById('grade-text');
-  ge.textContent=grade; ge.className='grade-text'+(pass?'':' low');
+  setTimeout(function(){document.getElementById('grade-fill').style.width=pct+'%';},150);
+  var grade,label,ascii,pass;
+  if(pct>=90){grade='A+';label='MUKAMMAL!';pass=true;ascii='  BRILLIANT\n  WELLK!';}
+  else if(pct>=70){grade='B';label='YAXSHI!';pass=true;ascii='  GOOD\n  JOB!';}
+  else if(pct>=50){grade='C';label="O'RTA";pass=true;ascii='  KEEP\n  TRYING!';}
+  else{grade='F';label="QAYTA O'RGANING!";pass=false;ascii='  FAIL\n  RETRY!';}
+  var ae=document.getElementById('res-ascii');
+  ae.textContent=ascii;ae.className='res-ascii '+(pass?'pass':'fail');
+  var ge=document.getElementById('grade-text');
+  ge.textContent=grade;ge.className='grade-text'+(pass?'':' low');
   document.getElementById('grade-label').textContent=label;
-  document.getElementById('footer-s').textContent=`TUGADI | ${pct}% | ${score}/${total} TO'G'RI`;
+  document.getElementById('footer-s').textContent='TUGADI | '+pct+'% | '+score+'/'+total+" TOG'RI";
 }
 
-// ===== REVIEW =====
 function openReview(){
   show('review-screen');
-  const list=document.getElementById('review-list');
+  var list=document.getElementById('review-list');
   list.innerHTML='';
-  history.forEach((h,i)=>{
-    const item=document.createElement('div');
+  history.forEach(function(h,i){
+    var item=document.createElement('div');
     item.className='review-item '+(h.isOk?'ok-item':'err-item');
-    const catCls=h.isOk?'ok-cat':'err-cat';
-    const statusIcon=h.isOk?'<span style="color:var(--green)">✓</span>':'<span style="color:var(--red)">✗</span>';
-    let answersHtml='';
-    h.opts.forEach((opt,idx)=>{
-      let cls='neutral';
-      if(idx===h.correctIdx) cls='correct-ans';
-      if(idx===h.selectedIdx && !h.isOk) cls='your-err';
-      if(idx===h.selectedIdx && h.isOk) cls='your-ok';
-      const label=idx===h.correctIdx?' ← TO\'G\'RI':'';
-      const yourLabel=idx===h.selectedIdx&&!h.isOk?' ← SIZNING JAVOBINGIZ':'';
-      answersHtml+=`<div class="review-ans ${cls}">[${['A','B','C','D'][idx]}] ${opt}${label}${yourLabel}</div>`;
+    var catCls=h.isOk?'ok-cat':'err-cat';
+    var statusIcon=h.isOk?'<span style="color:var(--green)">&#10003;</span>':'<span style="color:var(--red)">&#10007;</span>';
+    var answersHtml='';
+    h.opts.forEach(function(opt,idx){
+      var cls='neutral';
+      if(idx===h.correctIdx)cls='correct-ans';
+      if(idx===h.selectedIdx&&!h.isOk)cls='your-err';
+      if(idx===h.selectedIdx&&h.isOk)cls='your-ok';
+      var lbl=idx===h.correctIdx?' &larr; TOG&lsquo;RI':'';
+      var yl=idx===h.selectedIdx&&!h.isOk?' &larr; SIZNING JAVOBINGIZ':'';
+      answersHtml+='<div class="review-ans '+cls+'">['+('ABCD'[idx])+'] '+opt+lbl+yl+'</div>';
     });
-    item.innerHTML=`
-      <div class="review-item-top">
-        <span class="review-num">#${String(i+1).padStart(2,'0')}</span>
-        <div style="flex:1">
-          <div><span class="review-cat ${catCls}">${h.cat}</span> ${statusIcon}</div>
-          <div class="review-q">${h.q}</div>
-        </div>
-      </div>
-      <div class="review-answers">${answersHtml}</div>`;
+    item.innerHTML=
+      '<div class="review-item-top">'+
+      '<span class="review-num">#'+String(i+1).padStart(2,'0')+'</span>'+
+      '<div style="flex:1"><div><span class="review-cat '+catCls+'">'+h.cat+'</span> '+statusIcon+'</div>'+
+      '<div class="review-q">'+h.q+'</div></div></div>'+
+      '<div class="review-answers">'+answersHtml+'</div>';
     list.appendChild(item);
   });
-  document.getElementById('footer-s').textContent=`NATIJALAR TAHLILI | ${score}/${pool.length} TO'G'RI`;
+  document.getElementById('footer-s').textContent="NATIJALAR TAHLILI | "+score+"/"+pool.length+" TOG'RI";
 }
 
 function backToResult(){show('result-screen');}
 
-// ===== RESTART DIALOG =====
 function openRestartDialog(){
-  const isRandom=lastMode===20;
-  const sub=document.getElementById('dialog-sub');
-  const btns=document.getElementById('dialog-btns');
-  sub.textContent=isRandom
-    ? "Random test uchun qayta ishlash variantini tanlang:"
-    : "To'liq test uchun qayta ishlash variantini tanlang:";
+  var btns=document.getElementById('dialog-btns');
   btns.innerHTML='';
-
-  if(isRandom){
-    // Option 1: new random
-    const b1=document.createElement('button');
-    b1.className='dbtn';
-    b1.innerHTML='<span class="dbtn-icon">🔀</span><div><div style="font-size:12px;color:var(--green);letter-spacing:1px">YANGI RANDOM</div><div style="font-size:10px;color:#444;margin-top:3px">112 dan yangi 20 ta savol aralashtirilib tanlanadi</div></div>';
-    b1.onclick=()=>{closeAllDialogs();startQuiz(20,false);};
-    // Option 2: same pool
-    const b2=document.createElement('button');
-    b2.className='dbtn';
-    b2.innerHTML='<span class="dbtn-icon">↺</span><div><div style="font-size:12px;color:var(--cyan);letter-spacing:1px">AVVALGI SAVOLLAR</div><div style="font-size:10px;color:#444;margin-top:3px">Xuddi o\'sha 20 ta savolni qaytadan ishlash</div></div>';
-    b2.onclick=()=>{closeAllDialogs();startQuiz(20,true);};
+  var b1=document.createElement('button');b1.className='dbtn';
+  if(lastModeType==='random'){
+    document.getElementById('dialog-sub').textContent='Random test uchun qayta ishlash variantini tanlang:';
+    b1.innerHTML='<span class="dbtn-icon">&#128256;</span><div><div style="font-size:12px;color:var(--green)">YANGI RANDOM</div><div style="font-size:10px;color:#444">248 dan yangi 20 ta savol tanlanadi</div></div>';
+    b1.onclick=function(){closeAllDialogs();startRandom();};
     btns.appendChild(b1);
-    const sep=document.createElement('div'); sep.className='dialog-sep'; btns.appendChild(sep);
+    var sep=document.createElement('div');sep.className='dialog-sep';btns.appendChild(sep);
+    var b2=document.createElement('button');b2.className='dbtn';
+    b2.innerHTML='<span class="dbtn-icon">&#8635;</span><div><div style="font-size:12px;color:var(--cyan)">AVVALGI SAVOLLAR</div><div style="font-size:10px;color:#444">Xuddi shu 20 ta savolni qayta ishlash</div></div>';
+    b2.onclick=function(){closeAllDialogs();current=0;score=0;wrongC=0;history=[];_launch_existing();};
     btns.appendChild(b2);
+  } else if(lastModeType==='full'){
+    document.getElementById('dialog-sub').textContent="To'liq test uchun qayta ishlash:";
+    b1.innerHTML='<span class="dbtn-icon">&#8635;</span><div><div style="font-size:12px;color:var(--green)">BARCHA 248 SAVOLNI QAYTA ISHLASH</div><div style="font-size:10px;color:#444">Birinchidan boshlab</div></div>';
+    b1.onclick=function(){closeAllDialogs();startFull();};
+    btns.appendChild(b1);
   } else {
-    const b1=document.createElement('button');
-    b1.className='dbtn';
-    b1.innerHTML='<span class="dbtn-icon">↺</span><div><div style="font-size:12px;color:var(--green);letter-spacing:1px">BARCHA 112 SAVOLNI QAYTA ISHLASH</div><div style="font-size:10px;color:#444;margin-top:3px">Birinchidan boshlab hamma savol</div></div>';
-    b1.onclick=()=>{closeAllDialogs();startQuiz(112,false);};
+    document.getElementById('dialog-sub').textContent='Blok testi uchun qayta ishlash:';
+    b1.innerHTML='<span class="dbtn-icon">&#8635;</span><div><div style="font-size:12px;color:var(--green)">BLOKNI QAYTA ISHLASH</div><div style="font-size:10px;color:#444">Xuddi shu blok savollarini qayta ishlash</div></div>';
+    b1.onclick=function(){closeAllDialogs();startGroup(lastGroupRange.start,lastGroupRange.end);};
     btns.appendChild(b1);
   }
-
-  const sep2=document.createElement('div'); sep2.className='dialog-sep'; btns.appendChild(sep2);
-  const cancel=document.createElement('button');
-  cancel.className='dbtn cancel-btn';
-  cancel.innerHTML='<span class="dbtn-icon" style="color:#333">✕</span><span style="font-size:11px;color:#444;letter-spacing:2px">BEKOR QILISH</span>';
+  var sep2=document.createElement('div');sep2.className='dialog-sep';btns.appendChild(sep2);
+  var cancel=document.createElement('button');cancel.className='dbtn cancel-btn';
+  cancel.innerHTML='<span class="dbtn-icon" style="color:#333">&#10005;</span><span style="font-size:11px;color:#444">BEKOR QILISH</span>';
   cancel.onclick=closeAllDialogs;
   btns.appendChild(cancel);
-
   document.getElementById('restart-dialog').classList.add('show');
 }
+
+function _launch_existing(){show('quiz-screen');loadQ();}
 
 function closeAllDialogs(){
   document.getElementById('restart-dialog').classList.remove('show');
   document.getElementById('switch-dialog').classList.remove('show');
   document.getElementById('home-dialog').classList.remove('show');
 }
-
-function confirmGoHome(){
-  closeAllDialogs();
-  document.getElementById('home-dialog').classList.add('show');
-}
+function confirmGoHome(){closeAllDialogs();document.getElementById('home-dialog').classList.add('show');}
 
 function confirmSwitch(){
   closeAllDialogs();
-  const otherMode = lastMode===20 ? 112 : 20;
-  const sub = document.getElementById('switch-dialog-sub');
-  const btns = document.getElementById('switch-dialog-btns');
-  sub.textContent = lastMode===20
-    ? "Hozir 20 ta RANDOM test ishlayapsiz. 112 talik TO'LIQ testga o'tmoqchimisiz?"
-    : "Hozir 112 ta TO'LIQ test ishlayapsiz. 20 ta RANDOM testga o'tmoqchimisiz?";
-  btns.innerHTML='';
-  const b1=document.createElement('button');
-  b1.className='dbtn';
-  if(otherMode===112){
-    b1.innerHTML='<span class="dbtn-icon" style="color:var(--cyan)">▶▶</span><div><div style="font-size:12px;color:var(--cyan);letter-spacing:1px">TO\'LIQ TEST — 112 SAVOL</div><div style="font-size:10px;color:#444;margin-top:3px">Barcha savollar ketma-ket chiqadi</div></div>';
-  } else {
-    b1.innerHTML='<span class="dbtn-icon">▶</span><div><div style="font-size:12px;color:var(--green);letter-spacing:1px">RANDOM TEST — 20 SAVOL</div><div style="font-size:10px;color:#444;margin-top:3px">112 dan tasodifiy 20 ta tanlanadi</div></div>';
-  }
-  b1.onclick=()=>{closeAllDialogs();startQuiz(otherMode,false);};
+  var btns=document.getElementById('switch-dialog-btns');btns.innerHTML='';
+  document.getElementById('switch-dialog-sub').textContent="Joriy test bekor qilinadi. Qaysi rejimga o'tmoqchisiz?";
+  var b1=document.createElement('button');b1.className='dbtn';
+  b1.innerHTML='<span class="dbtn-icon">&#128256;</span><div><div style="font-size:12px;color:var(--green)">RANDOM TEST &mdash; 20 SAVOL</div><div style="font-size:10px;color:#444">248 dan tasodifiy 20 ta</div></div>';
+  b1.onclick=function(){closeAllDialogs();startRandom();};
+  var b2=document.createElement('button');b2.className='dbtn';
+  b2.innerHTML='<span class="dbtn-icon" style="color:var(--cyan)">&#9658;&#9658;</span><div><div style="font-size:12px;color:var(--cyan)">TO\'LIQ TEST &mdash; 248 SAVOL</div><div style="font-size:10px;color:#444">Barcha savollar random tartibda</div></div>';
+  b2.onclick=function(){closeAllDialogs();startFull();};
   btns.appendChild(b1);
-  const sep=document.createElement('div'); sep.className='dialog-sep'; btns.appendChild(sep);
-  const cancel=document.createElement('button');
-  cancel.className='dbtn cancel-btn';
-  cancel.innerHTML='<span class="dbtn-icon" style="color:#333">✕</span><span style="font-size:11px;color:#444;letter-spacing:2px">TESTNI DAVOM ETTIRISH</span>';
+  var sep=document.createElement('div');sep.className='dialog-sep';btns.appendChild(sep);
+  btns.appendChild(b2);
+  var sep2=document.createElement('div');sep2.className='dialog-sep';btns.appendChild(sep2);
+  var cancel=document.createElement('button');cancel.className='dbtn cancel-btn';
+  cancel.innerHTML='<span class="dbtn-icon" style="color:#333">&#10005;</span><span style="font-size:11px;color:#444">TESTNI DAVOM ETTIRISH</span>';
   cancel.onclick=closeAllDialogs;
   btns.appendChild(cancel);
   document.getElementById('switch-dialog').classList.add('show');
 }
 
-// close on overlay click
 document.getElementById('restart-dialog').addEventListener('click',function(e){if(e.target===this)closeAllDialogs();});
 document.getElementById('switch-dialog').addEventListener('click',function(e){if(e.target===this)closeAllDialogs();});
 document.getElementById('home-dialog').addEventListener('click',function(e){if(e.target===this)closeAllDialogs();});
+function goHome(){closeAllDialogs();show('boot-screen');document.getElementById('footer-s').textContent='SYSTEM READY';}
 
-function goHome(){
-  closeAllDialogs();
-  show('boot-screen');
-  document.getElementById('footer-s').textContent='SYSTEM READY';
-}
 </script>
 </body>
 </html>
