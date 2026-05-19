@@ -116,6 +116,40 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
 @keyframes fi{to{opacity:1}}
 @keyframes si{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
+
+/* SEARCH */
+.search-wrap{position:relative;margin-left:auto;}
+.search-input{background:#0a0a0a;border:1px solid #1a3a1a;color:var(--green);font-family:'Share Tech Mono',monospace;font-size:11px;padding:5px 26px 5px 26px;width:160px;letter-spacing:1px;outline:none;transition:border-color 0.2s,box-shadow 0.2s;}
+.search-input:focus{border-color:var(--green);box-shadow:0 0 10px rgba(0,255,65,0.2);}
+.search-input::placeholder{color:#2a4a2a;}
+.search-icon{position:absolute;left:8px;top:50%;transform:translateY(-50%);font-size:11px;color:#2a4a2a;pointer-events:none;}
+.search-clear{position:absolute;right:6px;top:50%;transform:translateY(-50%);font-size:10px;color:#333;cursor:pointer;display:none;background:none;border:none;padding:2px 3px;line-height:1;}
+.search-clear:hover{color:var(--green);}
+.search-input:not(:placeholder-shown) ~ .search-clear{display:block;}
+
+/* SEARCH OVERLAY */
+#search-overlay{display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,0.65);}
+#search-overlay.active{display:block;}
+.search-panel{position:fixed;top:48px;right:16px;width:min(660px,calc(100vw - 32px));background:#0a0a0a;border:1px solid #1a3a1a;box-shadow:0 0 40px rgba(0,255,65,0.12);max-height:calc(100vh - 70px);display:flex;flex-direction:column;}
+.search-panel-header{padding:10px 16px;border-bottom:1px solid #111;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
+.search-panel-title{font-family:'Share Tech Mono',monospace;font-size:10px;color:#444;letter-spacing:2px;}
+.search-count{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--gdim);letter-spacing:1px;}
+.search-results{overflow-y:auto;flex:1;padding:12px;}
+.search-results::-webkit-scrollbar{width:4px;}
+.search-results::-webkit-scrollbar-track{background:#0a0a0a;}
+.search-results::-webkit-scrollbar-thumb{background:#1a3a1a;border-radius:2px;}
+.search-empty{text-align:center;padding:40px 20px;color:#333;font-size:12px;letter-spacing:2px;}
+.search-item{border:1px solid #111;padding:14px 16px;margin-bottom:8px;transition:border-color 0.15s;cursor:pointer;}
+.search-item:hover{border-color:#1a3a1a;background:rgba(0,255,65,0.02);}
+.search-item:last-child{margin-bottom:0;}
+.search-item-meta{display:flex;gap:10px;align-items:center;margin-bottom:8px;}
+.search-item-num{font-family:'Share Tech Mono',monospace;font-size:9px;color:#333;}
+.search-item-cat{font-size:9px;color:var(--amber);border:1px solid rgba(255,176,0,0.25);padding:1px 7px;letter-spacing:2px;}
+.search-item-q{font-size:13px;color:var(--white);line-height:1.55;margin-bottom:10px;}
+.search-item-q mark{background:rgba(0,255,65,0.18);color:var(--green);font-style:normal;border-radius:1px;padding:0 1px;}
+.search-item-ans{display:flex;align-items:flex-start;gap:8px;}
+.search-ans-badge{font-size:9px;color:var(--green);border:1px solid rgba(0,255,65,0.3);padding:2px 8px;letter-spacing:2px;white-space:nowrap;flex-shrink:0;margin-top:1px;}
+.search-ans-text{font-size:12px;color:var(--gdim);font-family:'Share Tech Mono',monospace;line-height:1.5;}
 </style>
 </head>
 <body>
@@ -123,6 +157,24 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
   <div class="t-header">
     <div class="dots"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div>
     <div class="t-title">root@kali:~/kiberhavfsizlik-quiz</div>
+    <div class="search-wrap">
+      <span class="search-icon">&#9906;</span>
+      <input class="search-input" id="search-input" type="text" placeholder="qidirish..." autocomplete="off" oninput="doSearch(this.value)" onfocus="showSearchPanel()" />
+      <button class="search-clear" id="search-clear" onclick="clearSearch()">&#10005;</button>
+    </div>
+  </div>
+
+  <!-- SEARCH OVERLAY -->
+  <div id="search-overlay" onmousedown="handleOverlayClick(event)">
+    <div class="search-panel" id="search-panel" onmousedown="event.stopPropagation()">
+      <div class="search-panel-header">
+        <span class="search-panel-title">// QIDIRUV NATIJALARI</span>
+        <span class="search-count" id="search-count"></span>
+      </div>
+      <div class="search-results" id="search-results">
+        <div class="search-empty">Qidirish uchun so&#39;z yozing...</div>
+      </div>
+    </div>
   </div>
   <div class="t-body">
     <div id="boot-screen">
@@ -760,6 +812,82 @@ document.getElementById('restart-dialog').addEventListener('click',function(e){i
 document.getElementById('switch-dialog').addEventListener('click',function(e){if(e.target===this)closeAllDialogs();});
 document.getElementById('home-dialog').addEventListener('click',function(e){if(e.target===this)closeAllDialogs();});
 function goHome(){closeAllDialogs();show('boot-screen');document.getElementById('footer-s').textContent='SYSTEM READY';}
+
+// ===== SEARCH =====
+function showSearchPanel(){
+  document.getElementById('search-overlay').classList.add('active');
+  var val=document.getElementById('search-input').value;
+  if(val.trim()) doSearch(val);
+}
+function hideSearchPanel(){
+  document.getElementById('search-overlay').classList.remove('active');
+}
+function handleOverlayClick(e){
+  hideSearchPanel();
+}
+function clearSearch(){
+  document.getElementById('search-input').value='';
+  document.getElementById('search-results').innerHTML='<div class="search-empty">Qidirish uchun so&#39;z yozing...</div>';
+  document.getElementById('search-count').textContent='';
+  hideSearchPanel();
+}
+function escHtml(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function highlight(text, term){
+  if(!term) return escHtml(text);
+  var escaped=term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  var re=new RegExp('('+escaped+')','gi');
+  return escHtml(text).replace(re,'<mark>$1</mark>');
+}
+function doSearch(val){
+  var panel=document.getElementById('search-panel');
+  var overlay=document.getElementById('search-overlay');
+  var resultsEl=document.getElementById('search-results');
+  var countEl=document.getElementById('search-count');
+  overlay.classList.add('active');
+  var term=val.trim();
+  if(!term){
+    resultsEl.innerHTML='<div class="search-empty">Qidirish uchun so&#39;z yozing...</div>';
+    countEl.textContent='';
+    return;
+  }
+  var lower=term.toLowerCase();
+  var found=ALL.filter(function(q){
+    return q.q.toLowerCase().indexOf(lower)>=0 ||
+           q.opts.some(function(o){return o.toLowerCase().indexOf(lower)>=0;}) ||
+           q.cat.toLowerCase().indexOf(lower)>=0;
+  });
+  countEl.textContent=found.length+' ta natija';
+  if(found.length===0){
+    resultsEl.innerHTML='<div class="search-empty">&#171;'+escHtml(term)+'&#187; bo&#39;yicha hech narsa topilmadi</div>';
+    return;
+  }
+  var html='';
+  found.forEach(function(q,i){
+    var idx=ALL.indexOf(q);
+    var correctOpt=q.opts[q.ans]||'—';
+    html+='<div class="search-item">'+
+      '<div class="search-item-meta">'+
+      '<span class="search-item-num">#'+String(idx+1).padStart(3,'0')+'</span>'+
+      '<span class="search-item-cat">'+escHtml(q.cat)+'</span>'+
+      '</div>'+
+      '<div class="search-item-q">'+highlight(q.q,term)+'</div>'+
+      '<div class="search-item-ans">'+
+      '<span class="search-ans-badge">TOG&#39;RI JAVOB</span>'+
+      '<span class="search-ans-text">'+highlight(correctOpt,term)+'</span>'+
+      '</div>'+
+      '</div>';
+  });
+  resultsEl.innerHTML=html;
+}
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape') hideSearchPanel();
+  if((e.ctrlKey||e.metaKey)&&e.key==='f'){
+    e.preventDefault();
+    document.getElementById('search-input').focus();
+  }
+});
 
 </script>
 </body>
